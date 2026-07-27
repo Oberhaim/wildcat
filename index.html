@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WILDCAT</title>
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cpath d='M6 11 L10 4 L13 10 M26 11 L22 4 L19 10 M6 11 L16 28 L26 11 L16 8 Z' fill='none' stroke='%23fff' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{--mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace}
+html,body{height:100%;margin:0;overflow:hidden;background:#000}
+body{color:#fff;-webkit-tap-highlight-color:transparent}
+#field{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(115% 80% at 50% 46%, rgba(0,0,0,0) 34%, rgba(0,0,0,.80) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 78%, rgba(0,0,0,.66) 100%);
+}
+.grain{
+  position:fixed;inset:-50%;z-index:2;pointer-events:none;
+  opacity:.055;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:g 5s steps(5) infinite;
+}
+@keyframes g{
+  0%{transform:translate(0,0)}20%{transform:translate(-2%,1%)}
+  40%{transform:translate(1%,-2%)}60%{transform:translate(-1%,2%)}
+  80%{transform:translate(2%,1%)}100%{transform:translate(0,0)}
+}
+@media(prefers-reduced-motion:reduce){.grain{animation:none}}
+
+/* ---- flat UI, sits in front of the point cloud ---- */
+.ui{
+  position:fixed; inset:auto 0 0 0; z-index:5;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  padding:0 20px 30px;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.ui__row{display:flex; justify-content:center; flex-wrap:wrap; gap:10px}
+.ui__row--contact button{ border-color:rgba(255,255,255,.62); padding-inline:34px }
+.ui button{
+  appearance:none; background:transparent; color:#fff;
+  border:1px solid rgba(255,255,255,.34);
+  padding:11px 20px; border-radius:2px; cursor:pointer;
+  font-family:var(--mono);
+  font-size:10px; font-weight:500; letter-spacing:.20em; text-transform:uppercase;
+  transition:background .22s ease, color .22s ease, border-color .22s ease;
+}
+.ui button:hover,.ui button:focus-visible{ background:#fff; color:#000; border-color:#fff; outline:none }
+
+.modal{
+  position:fixed; inset:0; z-index:10; display:none;
+  align-items:center; justify-content:center; padding:24px;
+  background:radial-gradient(120% 90% at 50% 50%, rgba(0,0,0,.46) 0%, rgba(0,0,0,.14) 100%);
+  backdrop-filter:blur(1.5px); -webkit-backdrop-filter:blur(1.5px);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.modal.open{display:flex}
+.modal__box{
+  width:min(720px,100%); max-height:86vh; overflow:auto;
+  border:1px solid rgba(255,255,255,.34); background:rgba(0,0,0,.90); padding:24px;
+  backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+}
+.modal__head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.modal__eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.modal__x{
+  appearance:none;background:transparent;border:1px solid rgba(255,255,255,.30);color:#fff;
+  width:32px;height:32px;line-height:1;cursor:pointer;border-radius:2px;font-size:15px;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.modal__x:hover{background:#fff;color:#000;border-color:#fff}
+.modal__x:focus-visible{outline:1px solid #fff;outline-offset:3px}
+/* video slot: swap the inner placeholder for a <video> or <iframe> */
+.modal__video{
+  position:relative; aspect-ratio:var(--ar,16/9); width:100%;
+  border:1px solid rgba(255,255,255,.26); overflow:hidden; background:#000;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+  color:rgba(255,255,255,.5);
+}
+.modal__video video{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Vertical footage goes beside the copy instead of above it — at full panel
+   width a 344x640 clip would run past 1300px tall and bury everything. */
+.modal__main{display:block}
+.modal__box.is-portrait{width:min(680px,100%)}
+.modal__box.is-portrait .modal__main{display:flex;gap:26px;align-items:flex-start}
+.modal__box.is-portrait .modal__video{
+  width:auto; height:min(54vh,430px); flex:0 0 auto;
+}
+.modal__box.is-portrait .modal__text{flex:1 1 auto;min-width:0}
+.modal__box.is-portrait .modal__title{margin-top:0}
+.modal__box.is-portrait .modal__row{flex-direction:column;gap:20px;align-items:stretch}
+.modal__box.is-portrait .modal__body{max-width:none}
+.modal__box.is-portrait .stat{margin-left:auto}
+@media(max-width:620px){
+  .modal__box.is-portrait .modal__main{flex-direction:column;gap:0}
+  .modal__box.is-portrait .modal__video{width:100%;height:auto}
+  .modal__box.is-portrait .modal__title{margin-top:20px}
+}
+.modal__video svg{width:38px;height:38px;opacity:.6}
+.modal__video span{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase}
+.modal__title{
+  color:#fff; margin:20px 0 12px; font-size:clamp(21px,2.5vw,29px); font-weight:600;
+  letter-spacing:-.015em; text-transform:uppercase; line-height:1.05;
+}
+.modal__body{margin:0;font-size:13.5px;line-height:1.7;color:rgba(255,255,255,.66);max-width:46ch}
+.modal__row{display:flex;gap:28px;align-items:flex-start}
+.modal__row .modal__body{flex:0 1 auto}
+.stat{
+  flex:0 0 auto; margin-left:auto;          /* pins to the panel's right edge */
+  border:1px solid rgba(255,255,255,.28); border-radius:2px;
+  padding:12px 16px; text-align:center; min-width:104px;
+}
+.stat b{display:block;font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff;line-height:1}
+.stat span{
+  display:block;margin-top:6px;font-family:var(--mono);font-size:8.5px;letter-spacing:.20em;
+  text-transform:uppercase;color:rgba(255,255,255,.52);
+}
+@media(max-width:560px){
+  .modal__row{flex-direction:column;gap:18px}
+  .stat{align-self:stretch}
+}
+}
+/* contact page */
+.contact__belief{margin:12px 0 24px;max-width:40ch}
+#panel-contact .modal__title{margin-top:0}
+.contact__mail{
+  display:inline-block; color:#fff; text-decoration:none; overflow-wrap:anywhere;
+  font-size:clamp(18px,2.9vw,28px); font-weight:600; letter-spacing:-.015em;
+  border-bottom:1px solid rgba(255,255,255,.35); padding-bottom:5px;
+  transition:border-color .2s;
+}
+.contact__mail:hover{border-bottom-color:#fff}
+}
+@media(max-width:560px){
+  .ui{gap:8px;padding-bottom:24px}
+  .ui button{padding:9px 13px;font-size:10px;letter-spacing:.16em}
+}
+</style>
+</head>
+<body>
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<nav class="ui" aria-label="Sections">
+  <div class="ui__row" id="ui-row"></div>
+  <div class="ui__row ui__row--contact"><button type="button" id="btn-contact">Contact</button></div>
+</nav>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal__box">
+    <div class="modal__head">
+      <span class="modal__eyebrow" id="modal-eyebrow">Wildcat</span>
+      <button class="modal__x" id="modal-close" aria-label="Close">&#10005;</button>
+    </div>
+    <div id="panel-work">
+      <div class="modal__main">
+        <div class="modal__video" id="modal-slot">
+          <video id="modal-video" muted loop playsinline preload="metadata" hidden></video>
+          <svg id="modal-ph-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          <span id="modal-ph-text">Video placeholder</span>
+        </div>
+        <div class="modal__text">
+          <h2 class="modal__title" id="modal-title"></h2>
+          <div class="modal__row">
+            <p class="modal__body" id="modal-body"></p>
+            <div class="stat"><b id="modal-stat"></b><span>Players</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-contact" hidden>
+      <h2 class="modal__title">Contact</h2>
+      <p class="modal__body contact__belief">We believe a brand is better played than watched.</p>
+      <a class="contact__mail" href="mailto:collab@wildcatproduction.com">collab@wildcatproduction.com</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   WILDCAT — the mark, as a point cloud, morphing
+   ------------------------------------------------------------
+   THE MARK  Not drawn by hand: the actual logo artwork was
+             Poisson-disk sampled into 1910 evenly spaced points,
+             quantised to int16 and embedded below. What renders
+             is the mark itself, not an approximation of it.
+             Edges come from a k-nearest-neighbour graph built
+             at load, which is what gives the constellation mesh.
+
+   THE MORPH Every target is DERIVED from those same points —
+             burst outward, cast onto an orb, drawn into a
+             vortex — so the cloud is always the logo in some
+             state. The sequence returns to the mark between
+             each one.
+
+   THE LAND  190 wireframe fragments drifting past, morphing
+             between four abstract states.
+   ============================================================ */
+(() => {
+  const cv  = document.getElementById('field');
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const TAU = Math.PI*2;
+  const GY  = -1.80;                       // ground plane; the mark floats above it
+
+  /* ============================================================
+     THE MARK — decoded straight from the traced artwork
+     ============================================================ */
+  const LOGO = "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";
+
+  // shallow dome so the portrait has form when it turns. Kept subtle on
+  // purpose: a deep dome magnifies the centre under perspective and the
+  // mark would stop reading as an exact reproduction head-on.
+  const DZ = (x,y) => 0.14*Math.exp(-(x*x+y*y)*0.80);
+
+  const MARK = (() => {
+    const bin = atob(LOGO), n = bin.length>>2;
+    const P = new Float32Array(n*3);
+    let s = 20260727;
+    const rnd = () => (s = (s*1664525+1013904223)>>>0, s/4294967296);
+    for(let i=0;i<n;i++){
+      const o=i*4;
+      let xi = bin.charCodeAt(o)   | (bin.charCodeAt(o+1)<<8);
+      let yi = bin.charCodeAt(o+2) | (bin.charCodeAt(o+3)<<8);
+      if(xi>32767) xi-=65536;
+      if(yi>32767) yi-=65536;
+      const x=xi/8192, y=yi/8192;
+      P[i*3]=x; P[i*3+1]=y; P[i*3+2]=DZ(x,y)+(rnd()-.5)*0.024;   // thin shell
+    }
+    return P;
+  })();
+  const MARKN = MARK.length/3;
+
+  /* ---- topology ---- */
+  const FRAG  = 190, FRAGN = FRAG*8;
+  const N     = MARKN + FRAGN;
+
+  /* ---- buffers ---- */
+  const pos = new Float32Array(N*3);
+  const sx  = new Float32Array(N);
+  const sy  = new Float32Array(N);
+  const sd  = new Float32Array(N);
+  const vis = new Uint8Array(N);
+  const cw  = new Float32Array(MARKN);
+
+  /* ---- k-nearest-neighbour mesh over the sampled points ----
+     The sampling spacing is ~0.019 world units, so a 0.050 radius links
+     points along and across each stroke without bridging the gaps
+     between separate strokes. */
+  const MARKE = (() => {
+    const maxD=0.050, K=3, cell=maxD, d2max=maxD*maxD;
+    const grid=new Map();
+    const key=(a,b)=>(a+4096)*8192+(b+4096);
+    for(let i=0;i<MARKN;i++){
+      const gx=Math.floor(MARK[i*3]/cell), gy=Math.floor(MARK[i*3+1]/cell);
+      const k=key(gx,gy);
+      let arr=grid.get(k); if(!arr){arr=[];grid.set(k,arr);}
+      arr.push(i);
+    }
+    const out=[], seen=new Set(), cand=[];
+    for(let i=0;i<MARKN;i++){
+      const x=MARK[i*3], y=MARK[i*3+1];
+      const gx=Math.floor(x/cell), gy=Math.floor(y/cell);
+      cand.length=0;
+      for(let dx=-1;dx<=1;dx++) for(let dy=-1;dy<=1;dy++){
+        const arr=grid.get(key(gx+dx,gy+dy)); if(!arr) continue;
+        for(let q=0;q<arr.length;q++){
+          const j=arr[q]; if(j===i) continue;
+          const ex=MARK[j*3]-x, ey=MARK[j*3+1]-y, d2=ex*ex+ey*ey;
+          if(d2<d2max) cand.push(d2, j);
+        }
+      }
+      const m=cand.length>>1;
+      const idx=[]; for(let q=0;q<m;q++) idx.push(q);
+      idx.sort((a,b)=>cand[a*2]-cand[b*2]);
+      for(let q=0;q<Math.min(K,m);q++){
+        const j=cand[idx[q]*2+1];
+        const a=i<j?i:j, b=i<j?j:i, s=a*100000+b;
+        if(seen.has(s)) continue;
+        seen.add(s); out.push(a,b);
+      }
+    }
+    return new Uint16Array(out);
+  })();
+  const MARKE_N = MARKE.length/2;
+
+  /* ============================================================
+     MORPH TARGETS — all derived from the mark itself
+     ============================================================ */
+  function derive(fn){
+    const b = new Float32Array(MARKN*3);
+    let seed = 7717;
+    const rnd = () => (seed = (seed*1664525+1013904223)>>>0, seed/4294967296);
+    for(let i=0;i<MARKN;i++){ const o=i*3; fn(MARK[o],MARK[o+1],MARK[o+2], b, o, rnd); }
+    return b;
+  }
+  // burst outward radially, silhouette still ghosting through
+  const EXPLODE = derive((x,y,z,b,o,rnd)=>{
+    const l=Math.hypot(x,y,z)||1, k=0.40+rnd()*0.65;
+    b[o  ]=x+(x/l)*k+(rnd()-.5)*0.30;
+    b[o+1]=y+(y/l)*k+(rnd()-.5)*0.30;
+    b[o+2]=z+(z/l)*k*0.6+(rnd()-.5)*0.45;
+  });
+  // cast onto an orb
+  const ORB = derive((x,y,z,b,o)=>{
+    const l=Math.hypot(x,y,z)||1, r=1.12;
+    b[o]=x/l*r; b[o+1]=y/l*r; b[o+2]=z/l*r;
+  });
+  // drawn into a vortex: height maps to twist, radius pinches at the waist
+  const VORTEX = derive((x,y,z,b,o)=>{
+    const a=Math.atan2(z,x), rad=Math.hypot(x,z);
+    const t=y*0.85, tw=t*1.5;
+    const rr=(0.22+0.52*t*t)+rad*0.45;
+    b[o]=rr*Math.cos(a+tw); b[o+1]=t*1.05; b[o+2]=rr*Math.sin(a+tw);
+  });
+  // every other state is the mark, so it always resolves back
+  // ripple, swirl and lattice give each button its own transformation
+  const RIPPLE = derive((x,y,z,b,o)=>{
+    const r=Math.hypot(x,y), w=Math.sin(r*7.0-1.1);
+    b[o]=x*(1+0.12*w); b[o+1]=y*(1+0.12*w); b[o+2]=z+0.55*w;
+  });
+  const LATTICE = derive((x,y,z,b,o,rnd)=>{
+    const g=0.17;
+    b[o]=Math.round(x/g)*g; b[o+1]=Math.round(y/g)*g;
+    b[o+2]=Math.round(z/g)*g+(rnd()-.5)*0.06;
+  });
+
+  const STATES = [MARK, EXPLODE, MARK, ORB, MARK, VORTEX];
+  // hover targets, indexed to match the buttons.
+  // null = that button deliberately does not morph the cloud.
+  const HOVER = [EXPLODE, ORB, LATTICE, RIPPLE, null];   // sports, healthcare, clubbing, lifestyle, contact
+  let hoverIdx = -1, hoverBlend = 0;
+  // hMix is a PERSISTENT target that eases in its own right. Without it,
+  // releasing a button dropped the target to null in a single frame and the
+  // cloud snapped home; switching buttons jumped straight to the new shape.
+  // Now the blend fades out over the last target, and target-to-target
+  // cross-morphs smoothly while the blend stays up.
+  const hMix = new Float32Array(MARKN*3);
+  hMix.set(MARK);
+  // the flat UI drives this; the ambient morph keeps running underneath
+  window.WILDCAT = { hover(i){ hoverIdx = (i>=0 && i<HOVER.length && HOVER[i]) ? i : -1; } };
+
+  /* ---- per-point dissolution vectors ---- */
+  const cdir = new Float32Array(MARKN*3), crnd = new Float32Array(MARKN);
+  {
+    let s=1337;
+    const rnd = () => (s = (s*1664525+1013904223)>>>0, s/4294967296);
+    for(let i=0;i<MARKN;i++){
+      let dx=(rnd()-.5)*2, dy=(rnd()-.5)*2+0.35, dz=(rnd()-.5)*2+0.55;
+      const l=Math.hypot(dx,dy,dz)||1;
+      cdir[i*3]=dx/l; cdir[i*3+1]=dy/l; cdir[i*3+2]=dz/l;
+      crnd[i]=rnd();
+    }
+  }
+  function dissolve(bandY, amp){
+    const bw=0.30, inv=1/(bw*bw);
+    for(let i=0;i<MARKN;i++){
+      const o=i*3;
+      const d=pos[o+1]-bandY;
+      const w=Math.exp(-d*d*inv);
+      cw[i]=w;
+      if(w>0.004){
+        const a=w*amp*(0.30+0.70*crnd[i]);
+        pos[o]+=cdir[o]*a; pos[o+1]+=cdir[o+1]*a; pos[o+2]+=cdir[o+2]*a;
+      }
+    }
+  }
+
+  /* ============================================================
+     THE LAND — 190 fragments, four abstract states
+     ============================================================ */
+  const ST = 4, SPAN = 26;
+  const fBaseX=new Float32Array(FRAG), fBaseZ=new Float32Array(FRAG),
+        fYaw=new Float32Array(FRAG), fSpin=new Float32Array(FRAG),
+        fTilt=new Float32Array(FRAG*9);
+  const fPar=new Float32Array(FRAG*ST*5);
+  const fKeep=new Uint16Array(FRAG);
+  {
+    let s=90210;
+    const rnd = () => (s = (s*1664525+1013904223)>>>0, s/4294967296);
+    for(let i=0;i<FRAG;i++){
+      fBaseX[i]=rnd()*SPAN;
+      fBaseZ[i]=(rnd()<.5?-1:1)*(1.30+rnd()*5.4);
+      fYaw[i]=rnd()*TAU;
+      fSpin[i]=(rnd()-.5)*0.5;
+      const pi=(rnd()-.5)*0.72, ro=(rnd()-.5)*0.72;
+      const cp1=Math.cos(pi), sp1=Math.sin(pi), cr=Math.cos(ro), sr=Math.sin(ro);
+      const m=i*9;
+      fTilt[m+0]= cp1;    fTilt[m+1]=-sp1;    fTilt[m+2]=0;
+      fTilt[m+3]= cr*sp1; fTilt[m+4]= cr*cp1; fTilt[m+5]=-sr;
+      fTilt[m+6]= sr*sp1; fTilt[m+7]= sr*cp1; fTilt[m+8]= cr;
+      let mask=0xFFF, dropped=0;                   // shards, not intact crates
+      while(dropped<4){ const bit=1<<((rnd()*12)|0); if(mask&bit){ mask&=~bit; dropped++; } }
+      fKeep[i]=mask;
+      const b=i*ST*5;
+      fPar[b+0]=GY+rnd()*0.05; fPar[b+1]=0.35+rnd()*1.05; fPar[b+2]=0.015+rnd()*0.065; fPar[b+3]=0.35+rnd()*1.05; fPar[b+4]=1;
+      fPar[b+5]=GY;            fPar[b+6]=0.05+rnd()*0.12; fPar[b+7]=0.55+rnd()*2.1;    fPar[b+8]=0.05+rnd()*0.12; fPar[b+9]=1;
+      fPar[b+10]=GY+0.10+rnd()*1.6; fPar[b+11]=0.07+rnd()*0.26; fPar[b+12]=0.07+rnd()*0.26; fPar[b+13]=0.07+rnd()*0.26; fPar[b+14]=1;
+      fPar[b+15]=GY;           fPar[b+16]=0.35+rnd()*0.70; fPar[b+17]=1.0+rnd()*2.4;   fPar[b+18]=0.35+rnd()*0.70; fPar[b+19]=1.5;
+    }
+  }
+  const BOX=[[-.5,0,-.5],[-.5,0,.5],[.5,0,.5],[.5,0,-.5],
+             [-.5,1,-.5],[-.5,1,.5],[.5,1,.5],[.5,1,-.5]];
+  const BOXE=[0,1,1,2,2,3,3,0, 4,5,5,6,6,7,7,4, 0,4,1,5,2,6,3,7];
+
+  function buildLand(stA, stB, k, streamX, time){
+    for(let i=0;i<FRAG;i++){
+      const a=(i*ST+stA)*5, b=(i*ST+stB)*5;
+      const y  = fPar[a  ]+(fPar[b  ]-fPar[a  ])*k;
+      const s0 = fPar[a+1]+(fPar[b+1]-fPar[a+1])*k;
+      const s1 = fPar[a+2]+(fPar[b+2]-fPar[a+2])*k;
+      const s2 = fPar[a+3]+(fPar[b+3]-fPar[a+3])*k;
+      const zm = fPar[a+4]+(fPar[b+4]-fPar[a+4])*k;
+      let X=(fBaseX[i]+streamX)%SPAN; if(X<0) X+=SPAN; X-=SPAN*0.5;
+      const Z=fBaseZ[i]*zm;
+      const yaw=fYaw[i]+time*fSpin[i]*0.22;
+      const c=Math.cos(yaw), sn=Math.sin(yaw);
+      const m=i*9, off=MARKN+i*8;
+      for(let v=0;v<8;v++){
+        const ax=BOX[v][0]*s0, ay=BOX[v][1]*s1, az=BOX[v][2]*s2;
+        const tx=fTilt[m  ]*ax+fTilt[m+1]*ay+fTilt[m+2]*az;
+        const ty=fTilt[m+3]*ax+fTilt[m+4]*ay+fTilt[m+5]*az;
+        const tz=fTilt[m+6]*ax+fTilt[m+7]*ay+fTilt[m+8]*az;
+        const q=(off+v)*3;
+        pos[q  ]=X + tx*c - tz*sn;
+        pos[q+1]=y + ty;
+        pos[q+2]=Z + tx*sn + tz*c;
+      }
+    }
+  }
+  const fragE=[];
+  for(let i=0;i<FRAG;i++){
+    const base=MARKN+i*8, keep=fKeep[i];
+    for(let e=0;e<12;e++){
+      if(!(keep & (1<<e))) continue;
+      fragE.push(base+BOXE[e*2], base+BOXE[e*2+1]);
+    }
+  }
+  const FRAGE=new Uint16Array(fragE), FRAGE_N=FRAGE.length/2;
+
+  /* ---- ambient dust ---- */
+  const DUST=260, dust=new Float32Array(DUST*3);
+  for(let i=0;i<DUST;i++){
+    dust[i*3]=Math.random()*SPAN;
+    dust[i*3+1]=GY+Math.random()*4.6;
+    dust[i*3+2]=(Math.random()-.5)*13;
+  }
+
+  /* ---- viewport ---- */
+  let W=0,H=0,DPR=1,cx=0,cy=0,focal=0;
+  function resize(){
+    DPR=Math.min(devicePixelRatio||1,2);
+    W=innerWidth; H=innerHeight;
+    cv.width=Math.floor(W*DPR); cv.height=Math.floor(H*DPR);
+    cv.style.width=W+'px'; cv.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    const narrow=W<760;
+    cx=W*0.5; cy=H*0.44;
+    focal=narrow ? W*1.45 : Math.min(W,H)*1.75;
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  /* ---- input ---- */
+  let mx=0,my=0,tmx=0,tmy=0,scrub=0;
+  // Scroll hands control of the morph to the user: the auto-advance freezes
+  // so it stops fighting the input, then resumes from where it stopped.
+  let lastScrollMs = -1e9;
+  addEventListener('pointermove', e=>{
+    tmx=e.clientX/innerWidth-.5; tmy=e.clientY/innerHeight-.5;
+  },{passive:true});
+  addEventListener('wheel', e=>{
+    scrub += e.deltaY*0.0012;
+    lastScrollMs = performance.now();
+  },{passive:true});
+
+  /* ---- depth-bucketed edge pass: bucket once, one compare per pass ---- */
+  const BK=5;
+  const ebuf = new Uint8Array(Math.max(MARKE_N, FRAGE_N));
+  function strokeEdges(E, EN, base, cull){
+    for(let e=0;e<EN;e++){
+      const a=E[e*2], c=E[e*2+1];
+      if(!vis[a]||!vis[c]){ ebuf[e]=255; continue; }
+      const dx=sx[a]-sx[c], dy=sy[a]-sy[c];
+      if(dx*dx+dy*dy>cull){ ebuf[e]=255; continue; }
+      let b=(((sd[a]+sd[c])*.5)*BK)|0;
+      if(b<0) b=0; else if(b>=BK) b=BK-1;
+      ebuf[e]=b;
+    }
+    for(let b=0;b<BK;b++){
+      const mid=(b+0.5)/BK;
+      ctx.beginPath();
+      let any=false;
+      for(let e=0;e<EN;e++){
+        if(ebuf[e]!==b) continue;
+        const a=E[e*2], c=E[e*2+1];
+        ctx.moveTo(sx[a],sy[a]); ctx.lineTo(sx[c],sy[c]);
+        any=true;
+      }
+      if(any){
+        ctx.strokeStyle='rgba(255,255,255,'+(((1-mid)*base+0.008).toFixed(3))+')';
+        ctx.stroke();
+      }
+    }
+  }
+
+  /* ---- clock ---- */
+  const PERIOD  = 5.2;             // seconds per morph step, no dwell
+  const CAMZ    = 5.2;
+  const DRIFT   = 0.55;
+  const IDLE_MS = 1600;
+  const mod=(a,n)=>((a%n)+n)%n;
+  let t0=performance.now(), last=t0, streamX=0, autoT=0;
+
+  function frame(now){
+    requestAnimationFrame(frame);
+    const time=(now-t0)/1000;
+    let dt=(now-last)/1000; last=now;
+    if(dt>0.1) dt=0.1;
+    if(reduce) dt=0;
+    if(!reduce && (now-lastScrollMs) > IDLE_MS) autoT += dt;
+
+    /* --- the mark, morphing --- */
+    const cyc = autoT/PERIOD + scrub;
+    const fl  = Math.floor(cyc), u = cyc-fl;   // linear: the morph never stalls
+    const A = STATES[mod(fl,   STATES.length)];
+    const B = STATES[mod(fl+1, STATES.length)];
+    const breathe = reduce ? 1 : 1 + Math.sin(time*0.5)*0.012;
+    hoverBlend += ((hoverIdx>=0 ? 1 : 0) - hoverBlend) * Math.min(1, dt*4.2);
+    if(hoverIdx>=0){
+      const T = HOVER[hoverIdx];
+      if(hoverBlend < 0.02) hMix.set(T);            // still invisible, so snap
+      else {
+        const k = Math.min(1, dt*3.6);              // visible: cross-morph
+        for(let i=0;i<MARKN*3;i++) hMix[i] += (T[i]-hMix[i])*k;
+      }
+    }
+    if(hoverBlend > 0.001){
+      for(let i=0;i<MARKN*3;i++){
+        const base = A[i] + (B[i]-A[i])*u;
+        pos[i] = (base + (hMix[i]-base)*hoverBlend) * breathe;
+      }
+    } else {
+      for(let i=0;i<MARKN*3;i++) pos[i] = (A[i] + (B[i]-A[i])*u) * breathe;
+    }
+
+    const sweep = mod(autoT*0.135 + scrub*0.7, 1);
+    dissolve(1.7 - 3.4*sweep, reduce ? 0 : 0.38);
+
+    /* --- the land --- */
+    streamX -= DRIFT*dt;
+    const lc = autoT/(PERIOD*1.6), lf = Math.floor(lc);
+    buildLand(mod(lf,ST), mod(lf+1,ST), lc-lf, streamX, time);
+
+    /* --- camera: near head-on, drifting --- */
+    mx+=(tmx-mx)*0.055; my+=(tmy-my)*0.055;
+    const s = reduce?0:1;
+    const ry = mx*0.85 + Math.sin(time*0.21)*0.20*s;
+    const rx = 0.02 + my*0.30 + Math.sin(time*0.29)*0.045*s;
+    const cosY=Math.cos(ry), sinY=Math.sin(ry), cosX=Math.cos(rx), sinX=Math.sin(rx);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+
+    /* --- ground grid --- */
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    const EXT=11, STEP=0.60;
+    for(let g=0; g<=SPAN; g+=STEP){
+      const X=mod(g+streamX, SPAN)-SPAN*0.5;
+      let started=false;
+      for(let q=0;q<=8;q++){
+        const z=-EXT+(2*EXT)*(q/8);
+        const x1= X*cosY + z*sinY, z1=-X*sinY + z*cosY;
+        const y1= GY*cosX - z1*sinX, z2=GY*sinX + z1*cosX;
+        const zc=z2+CAMZ;
+        if(zc<0.4){ started=false; continue; }
+        const sc=focal/zc, PX=cx+x1*sc, PY=cy-y1*sc;
+        if(started) ctx.lineTo(PX,PY); else { ctx.moveTo(PX,PY); started=true; }
+      }
+    }
+    for(let z=-EXT; z<=EXT; z+=STEP){
+      let started=false;
+      for(let q=0;q<=26;q++){
+        const X=-SPAN*0.5+SPAN*(q/26);
+        const x1= X*cosY + z*sinY, z1=-X*sinY + z*cosY;
+        const y1= GY*cosX - z1*sinX, z2=GY*sinX + z1*cosX;
+        const zc=z2+CAMZ;
+        if(zc<0.4){ started=false; continue; }
+        const sc=focal/zc, PX=cx+x1*sc, PY=cy-y1*sc;
+        if(started) ctx.lineTo(PX,PY); else { ctx.moveTo(PX,PY); started=true; }
+      }
+    }
+    ctx.strokeStyle='rgba(255,255,255,.100)';
+    ctx.stroke();
+
+    /* --- project --- */
+    for(let i=0;i<N;i++){
+      const o=i*3;
+      const x=pos[o], y=pos[o+1], z=pos[o+2];
+      const x1= x*cosY + z*sinY;
+      const z1=-x*sinY + z*cosY;
+      const y1= y*cosX - z1*sinX;
+      const z2= y*sinX + z1*cosX;
+      const zc=z2+CAMZ;
+      if(zc<0.3){ vis[i]=0; continue; }
+      vis[i]=1;
+      const sc=focal/zc;
+      sx[i]=cx+x1*sc; sy[i]=cy-y1*sc;
+      const d=(zc-(CAMZ-2.6))/5.2;
+      sd[i]=d<0?0:d>1?1:d;
+    }
+
+    strokeEdges(FRAGE, FRAGE_N, 0.400, 250000);
+    strokeEdges(MARKE, MARKE_N, 0.300,   4900);
+
+    /* --- land points --- */
+    for(let b=0;b<BK;b++){
+      const lo=b/BK, hi=(b+1)/BK, mid=(lo+hi)*.5;
+      const size=(1-mid)*1.5+0.6;
+      ctx.fillStyle='rgba(255,255,255,'+(((1-mid)*0.72+0.09).toFixed(3))+')';
+      for(let i=MARKN;i<N;i++){
+        if(!vis[i]) continue;
+        const d=sd[i];
+        if(d<lo||d>=hi) continue;
+        const X=sx[i], Y=sy[i];
+        if(X<-40||X>W+40||Y<-40||Y>H+40) continue;
+        ctx.fillRect(X-size*.5, Y-size*.5, size, size);
+      }
+    }
+
+    /* --- mark vertices: dim halo under a bright core --- */
+    for(let b=0;b<BK;b++){
+      const lo=b/BK, hi=(b+1)/BK, mid=(lo+hi)*.5;
+      const core=(1-mid)*1.6+0.85, halo=core+2.6;
+      const ca=((1-mid)*0.82+0.14).toFixed(3);
+      for(let pass=0;pass<2;pass++){
+        ctx.fillStyle = pass ? 'rgba(255,255,255,'+ca+')' : 'rgba(255,255,255,.055)';
+        const sz = pass ? core : halo;
+        for(let i=0;i<MARKN;i++){
+          if(!vis[i]) continue;
+          const d=sd[i];
+          if(d<lo||d>=hi) continue;
+          const X=sx[i], Y=sy[i];
+          if(X<-40||X>W+40||Y<-40||Y>H+40) continue;
+          ctx.fillRect(X-sz*.5, Y-sz*.5, sz, sz);
+        }
+      }
+    }
+
+    /* --- matter caught in the dissolution burns brighter --- */
+    ctx.fillStyle='rgba(255,255,255,.95)';
+    for(let i=0;i<MARKN;i++){
+      if(!vis[i] || cw[i]<0.16) continue;
+      const sz=0.9+cw[i]*2.0, X=sx[i], Y=sy[i];
+      if(X<-40||X>W+40||Y<-40||Y>H+40) continue;
+      ctx.fillRect(X-sz*.5, Y-sz*.5, sz, sz);
+    }
+
+    /* --- dust --- */
+    ctx.fillStyle='rgba(255,255,255,.40)';
+    for(let i=0;i<DUST;i++){
+      const X=mod(dust[i*3]+streamX*0.55, SPAN)-SPAN*0.5;
+      const y=dust[i*3+1], z=dust[i*3+2];
+      const x1= X*cosY + z*sinY, z1=-X*sinY + z*cosY;
+      const y1= y*cosX - z1*sinX, z2=y*sinX + z1*cosX;
+      const zc=z2+CAMZ;
+      if(zc<0.4) continue;
+      const sc=focal/zc, PX=cx+x1*sc, PY=cy-y1*sc;
+      if(PX<0||PX>W||PY<0||PY>H) continue;
+      ctx.fillRect(PX,PY,1,1);
+    }
+
+    ctx.globalCompositeOperation='source-over';
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+/* ------------------------------------------------------------
+   Flat UI. Deliberately real DOM rather than point cloud: the
+   copy stays selectable and focusable, and the video slot can
+   take an actual <video>/<iframe> without compositing tricks.
+   ------------------------------------------------------------ */
+(() => {
+  const SECTIONS = [
+    {
+      label:  'Sports',
+      poster: 'video/metafight.jpg',
+      video:  'video/metafight.mp4', vw: 344, vh: 640,
+      title:  'MMA \u2014 Formula 1',
+      stat:   '+1M',
+      copy:   'We build virtual games where the reward leaves the screen: play well and win real tickets to the live event, putting fans in the seats instead of in front of them.'
+    },
+    {
+      label:  'Healthcare',
+      title:  'AXA \u00d7 Publicis',
+      stat:   '+500K',
+      copy:   'Escape Bullying, made with AXA and Publicis, opens up how schools and families talk about bullying \u2014 building emotional support and understanding between parents, kids and friends rather than lecturing any of them.'
+    },
+    {
+      label:  'Clubbing',
+      poster: 'video/chanoirs.jpg',
+      video:  'video/chanoirs.mp4', vw: 640, vh: 360,
+      title:  'Chanoirs \u00d7 Fuse',
+      stat:   '+4,000',
+      copy:   'Chanoirs turns Europe\u2019s alternative club culture into a game, made with Fuse in Brussels. Play it to earn your way into the club in real life \u2014 the app is the door.'
+    },
+    {
+      label:  'Lifestyle',
+      poster: 'video/waldos.jpg',
+      video:  'video/waldos.mp4', vw: 736, vh: 1280,
+      title:  'Waldos',
+      stat:   '+50K',
+      copy:   'For cannabis retailer Waldos, loyalty behaves like a game: a plant Tamagotchi you raise and keep alive, turning what you grow into points to spend in shop.'
+    }
+  ];
+
+  const row     = document.getElementById('ui-row');
+  const contact = document.getElementById('btn-contact');
+  const modal   = document.getElementById('modal');
+  const title   = document.getElementById('modal-title');
+  const body    = document.getElementById('modal-body');
+  const eyebrow = document.getElementById('modal-eyebrow');
+  const stat    = document.getElementById('modal-stat');
+  const box     = document.querySelector('.modal__box');
+  const slot    = document.getElementById('modal-slot');
+  const vid     = document.getElementById('modal-video');
+  const phIcon  = document.getElementById('modal-ph-icon');
+  const phText  = document.getElementById('modal-ph-text');
+  const close   = document.getElementById('modal-close');
+  const pWork   = document.getElementById('panel-work');
+  const pMail   = document.getElementById('panel-contact');
+  let lastFocus = null;
+
+  // Hovering a button drives the point cloud. Index 5 is contact, which is
+  // why the hover targets in the canvas script run one past the sections.
+  const cloud = i => window.WILDCAT && window.WILDCAT.hover(i);
+  function wire(btn, idx, onOpen){
+    btn.addEventListener('pointerenter', () => cloud(idx));
+    btn.addEventListener('pointerleave', () => cloud(-1));
+    btn.addEventListener('focus',        () => cloud(idx));
+    btn.addEventListener('blur',         () => cloud(-1));
+    btn.addEventListener('click', onOpen);
+  }
+
+  // Categories are hidden for now — flip to true to bring the row back.
+  // Their data, panels, videos and hover morphs are all left intact.
+  const SHOW_SECTIONS = false;
+
+  if(SHOW_SECTIONS){
+    SECTIONS.forEach((sec, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = sec.label;
+      wire(b, i, () => openWork(sec, b));
+      row.appendChild(b);
+    });
+  }else{
+    row.hidden = true;                    // no empty row left behind
+  }
+  wire(contact, SECTIONS.length, () => openContact(contact));
+
+  function show(el){
+    pWork.hidden = el !== pWork;
+    pMail.hidden = el !== pMail;
+    modal.classList.add('open');
+    close.focus();
+  }
+  function openWork(sec, btn){
+    lastFocus = btn;
+    eyebrow.textContent = sec.label;      // category on top
+    title.textContent   = sec.title;      // client names as the headline
+    stat.textContent    = sec.stat;
+    body.textContent    = sec.copy;
+    setVideo(sec);
+    show(pWork);
+  }
+
+  // The slot takes the clip's real aspect, and vertical clips flip the panel
+  // into a side-by-side layout. Healthcare has no film yet, so it keeps the
+  // 16:9 placeholder.
+  function setVideo(sec){
+    const portrait = !!sec.video && sec.vh > sec.vw;
+    box.classList.toggle('is-portrait', portrait);
+    slot.style.setProperty('--ar', sec.video ? (sec.vw + '/' + sec.vh) : '16/9');
+    if(sec.video){
+      phIcon.hidden = phText.hidden = true;
+      vid.hidden = false;
+      if(sec.poster) vid.poster = sec.poster;
+      if(!vid.getAttribute('src')) vid.src = sec.video;
+      else if(!vid.getAttribute('src').endsWith(sec.video)) vid.src = sec.video;
+      vid.currentTime = 0;
+      vid.play().catch(()=>{});          // autoplay may be refused; harmless
+    }else{
+      stopVideo();
+      phIcon.hidden = phText.hidden = false;
+      vid.hidden = true;
+    }
+  }
+  function stopVideo(){
+    vid.pause();
+    if(vid.getAttribute('src')){ vid.removeAttribute('src'); vid.removeAttribute('poster'); vid.load(); }
+  }
+  function openContact(btn){
+    lastFocus = btn;
+    stopVideo();
+    box.classList.remove('is-portrait');
+    eyebrow.textContent = 'Wildcat';
+    show(pMail);
+  }
+  function shut(){
+    stopVideo();                    // otherwise audio keeps running behind
+    modal.classList.remove('open');
+    cloud(-1);                      // a click leaves no pointerleave behind
+    if(lastFocus) lastFocus.focus();
+  }
+  close.addEventListener('click', shut);
+  modal.addEventListener('click', e => { if(e.target === modal) shut(); });
+  addEventListener('keydown', e => { if(e.key === 'Escape' && modal.classList.contains('open')) shut(); });
+})();
+</script>
+</body>
+</html>
