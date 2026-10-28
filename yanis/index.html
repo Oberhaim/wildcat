@@ -301,6 +301,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .gxtitle h2 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: clamp(24px, 4vw, 54px); line-height: 1; margin: 10px 0 12px; color: #fff; text-shadow: 0 0 24px rgba(25,246,255,.6); }
 .gxwrap[data-open="1"] .gxtitle { opacity: 0; }
 .gxwrap { --bg:#050507; --ink:#F3F3EF; --ink-2:#C9C9C4; --muted:#8B8B93; --dim:#55555D; --hair:rgba(255,255,255,.12); --hair-2:rgba(255,255,255,.26); --red:#FF2D1F; --red-2:#FF6A5C; --play:#7CE0FF; --protect:#5B8CFF; --activate:#FF57C8; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; position: relative; width: 100%; height: clamp(560px, 92vh, 940px); background: #050507; color: #F3F3EF; font-family: var(--sans); font-size: 16px; line-height: normal; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
+
+/* on touch screens, the top and bottom strips of the galaxy always scroll the page, so nobody gets stuck */
+.gxpass { display: none; }
+@media (pointer: coarse) {
+  .gxpass { display: flex; position: absolute; left: 0; right: 0; height: 56px; z-index: 6; touch-action: pan-y; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(228,247,255,.55); }
+  .gxpass-top { top: 0; background: linear-gradient(180deg, rgba(25,246,255,.16), transparent); border-top: 1px solid rgba(25,246,255,.45); }
+  .gxpass-bottom { bottom: 0; background: linear-gradient(0deg, rgba(25,246,255,.16), transparent); border-bottom: 1px solid rgba(25,246,255,.45); }
+  .gxwrap[data-open="1"] .gxpass span { opacity: 0; }
+}
 .gxhint { position: absolute; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 5; margin: 0; padding: 7px 14px; border: 1px solid rgba(25,246,255,.6); background: rgba(0,0,0,.6); color: #F3F3EF; font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .4s ease; white-space: nowrap; }
 .gxwrap[data-open="1"] .gxhint { opacity: .9; }
 
@@ -459,6 +468,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
         <h2>Every project.<br>One galaxy.</h2>
       </div>
       <p class="gxhint" aria-hidden="true">Tap anywhere to go back to the galaxy</p>
+      <div class="gxpass gxpass-top" aria-hidden="true"><span>Swipe here to scroll</span></div>
+      <div class="gxpass gxpass-bottom" aria-hidden="true"><span>Swipe here to scroll</span></div>
     </div>
   </section>
 
