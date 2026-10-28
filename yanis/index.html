@@ -124,6 +124,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .growth b { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); text-shadow: 0 0 10px rgba(25,246,255,.6); display: block; }
 .growth span { font-size: 15px; line-height: 1.4; color: #c9dcee; display: block; margin-top: 2px; }
 .hero .pill { text-align: left; }
+@media (max-width: 900px) {
+  .hero .pill { display: block; width: fit-content; margin-inline: auto; text-align: center; }
+}
 @media (max-width: 600px) {
   .pill > span, .who .cls > span { display: block; }
   .pill .dot, .who .cls .dot { display: none; }
