@@ -1,0 +1,122 @@
+{
+  "_about": "THE WILDCAT GALAXY · source de donnees des projets. Une entree par projet. Aucun chiffre n'entre dans l'interface s'il n'est pas dans kpis (verifies par Wildcat). Les universes sont play, protect, activate. Les medias vivent dans /wildcat/media/cases/ (videos) et /wildcat/galaxy/posters/ (affiches). useful = [debut, fin] en secondes dans la video. priority 1 = projet emblematique (plus gros, precharge), 3 = satellite.",
+  "universes": {
+    "play": { "label": "PLAY", "accent": "#7CE0FF", "line": "Games, competition, community, rewards.", "feel": "speed, energy, progression" },
+    "protect": { "label": "PROTECT", "accent": "#5B8CFF", "line": "Scan, structure, understanding, safety.", "feel": "precision, information, operational intelligence" },
+    "activate": { "label": "ACTIVATE", "accent": "#FF57C8", "line": "Presence, propagation, culture, augmented reality.", "feel": "connection, physical space, propagation" }
+  },
+  "projects": [
+    {
+      "id": "excalibur", "name": "Excalibur", "universe": "play", "also": [],
+      "short": "A mobile-first PvP arena where skill has real stakes.",
+      "full": "Top-down PvP brawl: players fight in arenas, the interface shows a USDC balance and the kill feed. The site states PvP arena, mobile-first, skill = real money, players stake USDC and each kill transfers funds from the defeated to the victor, closed beta by referral, setting Planet Orth in 2448. Trailer titled World first instant earning PvP brawl, Mars colony hub.",
+      "video": "excalibur.mp4", "orientation": "landscape", "subject": "center", "poster": "excalibur.jpg", "useful": [3, 58],
+      "kpis": [], "tech": ["Mobile", "Real-time PvP", "Stakes per match (per the site)"], "formats": ["Mobile game", "Trailer"], "audience": "Players", "objectives": ["play"],
+      "related": ["metafight", "spa", "digitalaf"], "accent": "#7CE0FF", "priority": 1
+    },
+    {
+      "id": "spa", "name": "Spa-Francorchamps", "universe": "play", "also": ["activate"],
+      "short": "The real circuit turned into a game, with points, a ranking and rewards only the track can give.",
+      "full": "Driving game around a lap of the Spa-Francorchamps circuit: cockpit view, start lights, single-seaters on the real track layout. Points, a ranking and real rewards linked to the race (tickets, merchandising, race-related experiences), as described by Wildcat.",
+      "video": "spa.mp4", "orientation": "landscape", "subject": "center", "poster": "spa.jpg", "useful": [0, 40],
+      "kpis": [{ "value": "250K+", "label": "players" }], "tech": ["3D driving", "Ranking", "Real rewards"], "formats": ["Game", "Venue activation"], "audience": "Fans of the circuit and of the race", "objectives": ["play", "comeback"],
+      "related": ["excalibur", "chanoirs", "metafight"], "accent": "#7CE0FF", "priority": 1
+    },
+    {
+      "id": "metafight", "name": "MetaFight", "universe": "play", "also": [],
+      "short": "A Telegram boxing game paced by energy, with a persistent score, a leaderboard and real rewards.",
+      "full": "Boxing game: the player's 3D fighter punches a heavy bag in a ring; each session spends energy and earns a session score that feeds a total score tied to a player ID. Telegram-based community, leaderboard on total score, real rewards (per Wildcat).",
+      "video": "metafight.mp4", "orientation": "portrait", "subject": "center", "poster": "metafight.jpg", "useful": [0, 10.7],
+      "kpis": [{ "value": "1M+", "label": "players" }], "tech": ["Telegram", "3D", "Leaderboard"], "formats": ["Telegram game"], "audience": "Telegram community", "objectives": ["play", "comeback"],
+      "related": ["excalibur", "dogami", "scorerush", "waldos"], "accent": "#7CE0FF", "priority": 1
+    },
+    {
+      "id": "waldos", "name": "Waldos Legend", "universe": "play", "also": [],
+      "short": "A living plant to grow, session after session, inside Telegram.",
+      "full": "Growing game: the player tends a plant in a pot under a Waldos Legend neon sign, with a vertical slider and a monitor showing a pulse line and a value. The plant grows over time. Telegram-based (per Wildcat). Exact rules, currencies and rewards are not stated.",
+      "video": "waldos.mp4", "orientation": "portrait", "subject": "center", "poster": "waldos.jpg", "useful": [0, 30],
+      "kpis": [], "tech": ["Telegram", "3D"], "formats": ["Telegram game"], "audience": "Telegram community", "objectives": ["comeback", "play"],
+      "related": ["dogami", "scorerush", "metafight"], "accent": "#7CE0FF", "priority": 3
+    },
+    {
+      "id": "dogami", "name": "Dogami", "universe": "play", "also": [],
+      "short": "One-thumb reflex sessions: tap what appears, chain combos, chase the score.",
+      "full": "Reflex game with the DOGA branding: creatures and objects appear on a wooden floor with paint splats, the player taps them, combos give +5 points, the score climbs. Telegram community (per Wildcat). Rewards and leaderboard are not visible.",
+      "video": "dogami.mp4", "orientation": "portrait", "subject": "center", "poster": "dogami.jpg", "useful": [0, 9.5],
+      "kpis": [], "tech": ["Telegram", "Touch"], "formats": ["Telegram game"], "audience": "Dogami community", "objectives": ["play", "comeback"],
+      "related": ["scorerush", "waldos", "metafight"], "accent": "#7CE0FF", "priority": 3
+    },
+    {
+      "id": "scorerush", "name": "Score Rush", "universe": "play", "also": [],
+      "short": "A timed football run: score as many goals as you can before the clock ends, then beat your best.",
+      "full": "Football shooting game: the player shoots at a goal defended by a keeper in a stadium, with a countdown, a goals counter and a best score. Telegram-based (per Wildcat). Rewards and leaderboard are not visible.",
+      "video": "scorerush.mp4", "orientation": "portrait", "subject": "center", "poster": "scorerush.jpg", "useful": [0, 18],
+      "kpis": [], "tech": ["Telegram", "3D"], "formats": ["Telegram game"], "audience": "Telegram community", "objectives": ["play", "comeback"],
+      "related": ["dogami", "waldos", "metafight"], "accent": "#7CE0FF", "priority": 3
+    },
+    {
+      "id": "axa", "name": "AXA × Publicis", "universe": "protect", "also": ["play"],
+      "short": "School bullying lived instead of read: a teenager's room to explore, a diary, a card game, a conversation to open.",
+      "full": "Escape Bullying: first-person 3D experience set in a teenager's bedroom at night. The player explores the room, reads a diary, opens a card game (MAGIK cards) found in the room. Interactivity is used to open dialogue and understanding between children, their relatives and their environment, as described by Wildcat. Campaign with Publicis.",
+      "video": "axa.mp4", "orientation": "landscape", "subject": "center", "poster": "axa.jpg", "useful": [0, 39],
+      "kpis": [{ "value": "500K+", "label": "players" }], "tech": ["3D first person", "Narrative"], "formats": ["Interactive experience", "Campaign"], "audience": "Children, parents, schools", "objectives": ["learn", "share"],
+      "related": ["3dsafe", "agata", "excalibur"], "accent": "#5B8CFF", "priority": 1
+    },
+    {
+      "id": "3dsafe", "name": "3D SAFE", "universe": "protect", "also": [],
+      "short": "Every intervention site modelled in 3D, so emergency services know the place before entering it.",
+      "full": "3dsafe.fr: an advanced modelling system that gives emergency services a faithful representation of intervention sites, to anticipate risks and optimise intervention strategies, with preparation before each mission. Sites: public buildings, heritage sites, hazardous private sites, natural environments, Seveso industrial sites. The web app shows a satellite zoom, an aerial 3D city, 360 interiors with marked equipment, a 3D point cloud.",
+      "video": "3dsafe.mp4", "orientation": "landscape", "subject": "center", "poster": "3dsafe.jpg", "useful": [6, 23.4],
+      "kpis": [], "tech": ["3D modelling", "Photogrammetry", "360 interiors", "Web app"], "formats": ["Operational tool"], "audience": "Emergency services and firefighters", "objectives": ["safe", "learn"],
+      "related": ["axa", "portal", "agata"], "accent": "#5B8CFF", "priority": 1
+    },
+    {
+      "id": "agata", "name": "Agata", "universe": "protect", "also": ["activate"],
+      "short": "An AI guide and guardian of DIGITAL AF: program, connections and claims through one character.",
+      "full": "AI chatbot with a striped blue 3D head avatar. It introduces itself as your guide and guardian in the space of DIGITAL AF, here to help you navigate the event and its dimensions. Buttons PROGRAM and CONNECT, an input line Connect, Ask, Claim. Underlying model, channels and the claim mechanic are not stated.",
+      "video": "agata.mp4", "orientation": "portrait", "subject": "center", "poster": "agata.jpg", "useful": [0, 12.4],
+      "kpis": [], "tech": ["AI chatbot", "3D avatar"], "formats": ["Event guide"], "audience": "Visitors of DIGITAL AF", "objectives": ["learn", "visit"],
+      "related": ["digitalaf", "axa", "portal"], "accent": "#5B8CFF", "priority": 2
+    },
+    {
+      "id": "versace", "name": "Versace", "universe": "activate", "also": [],
+      "short": "The Medusa spins on the pavement, the season's look walks out in AR: the window you pass becomes a reason to step inside.",
+      "full": "Outside the boutique, the Medusa spins on the pavement waiting to be picked up, and the season's look walks out to meet you in AR, turning the window you walk past into a reason to step inside. The video shows the golden Medusa coin on the pavement in front of the Versace storefront, then a red look walking out of the door in AR.",
+      "video": "versace.mp4", "orientation": "portrait", "subject": "center", "poster": "versace.jpg", "useful": [0, 12.4],
+      "kpis": [], "tech": ["AR on phone", "Anchored on the facade"], "formats": ["AR activation", "Retail"], "audience": "Passers-by and clients of the boutique", "objectives": ["buy", "visit"],
+      "related": ["chanoirs", "popup", "portal"], "accent": "#FF57C8", "priority": 1
+    },
+    {
+      "id": "chanoirs", "name": "Chanoirs × Fuse", "universe": "activate", "also": ["play"],
+      "short": "Club tickets hidden across the city: follow the radar, reach the spot, pick the ticket up in AR.",
+      "full": "Tickets for Fuse are hidden across the city. The participant follows a radar and geolocation (distance in metres), physically reaches the spot and picks the ticket up through an AR interaction: a large FREE TICKET appears over the street on the phone. Once claimed, the app confirms the ticket under the player's username and points the compass at the club. First to reach the spot gets the ticket.",
+      "video": "chanoirs.mp4", "orientation": "portrait", "subject": "top", "poster": "chanoirs.jpg", "useful": [0, 9.8],
+      "kpis": [], "tech": ["Geolocation", "Radar", "AR on phone"], "formats": ["Urban hunt", "Ticketing"], "audience": "Club-goers of Fuse and the Chanoirs collective", "objectives": ["visit", "buy"],
+      "related": ["versace", "spa", "portal", "metafight"], "accent": "#FF57C8", "priority": 1
+    },
+    {
+      "id": "portal", "name": "PORTAL", "universe": "activate", "also": [],
+      "short": "An opening between two distant places: the body walks through, not just the eyes.",
+      "full": "Per Wildcat: an activation designed to connect two distant places through one real-time experience, main use case music festivals, giving people in two spaces the feeling of sharing one place or of communicating through a common opening. The recorded video shows a phone AR version: a ring placed on the floor, the user walks through it onto a lunar surface with the Earth beyond. The real-time two-venue link is described by Wildcat; the video shows the AR moon portal only.",
+      "video": "portal.mp4", "orientation": "portrait", "subject": "center", "poster": "portal.jpg", "useful": [0, 13.7],
+      "kpis": [], "tech": ["AR portal", "Real-time link (per Wildcat)"], "formats": ["Festival activation"], "audience": "Festival crowds", "objectives": ["share", "visit"],
+      "related": ["chanoirs", "versace", "digitalaf", "3dsafe"], "accent": "#FF57C8", "priority": 2
+    },
+    {
+      "id": "popup", "name": "Pop Up Store", "universe": "activate", "also": [],
+      "short": "A store as a place, not a catalogue: a neon storefront in an alley, artist pieces inside.",
+      "full": "DIGITAL AF online pop-up. The existing landing page (teaser and wishlist, email capture, save the date) is live at /popup. The video shows a neon storefront in a dark alley with Korean signage, then the interior with artist pieces on display. Whether the store is delivered and selling, and who built the 3D film, is to be confirmed by Wildcat.",
+      "video": "popup.mp4", "orientation": "landscape", "subject": "center", "poster": "popup.jpg", "useful": [0, 9.7],
+      "kpis": [], "tech": ["3D", "Web"], "formats": ["Online store"], "audience": "DIGITAL AF audience and collectors", "objectives": ["buy", "visit"],
+      "related": ["versace", "digitalaf", "agata"], "accent": "#FF57C8", "priority": 3, "verified": false
+    },
+    {
+      "id": "digitalaf", "name": "DIGITAL AF", "universe": "activate", "also": ["play", "protect"],
+      "short": "Art, tech, gaming and nightlife in one festival, produced end to end. Seoul, 29 September to 3 October 2026.",
+      "full": "The DIGITAL AF festival itself: art, tech, gaming and nightlife, produced end to end. Seoul edition 29 September to 3 October 2026 during Korea Blockchain Week. No video in the booth media folder: the venue photograph stands in.",
+      "video": null, "image": "digitalaf.jpg", "orientation": "landscape", "subject": "center", "poster": "digitalaf.jpg", "useful": null,
+      "kpis": [], "tech": ["Production", "Venue", "Program"], "formats": ["Festival"], "audience": "Artists, players, partners, night crowd", "objectives": ["share"],
+      "related": ["agata", "popup", "portal", "excalibur"], "accent": "#FF2D1F", "priority": 2
+    }
+  ]
+}
