@@ -1150,7 +1150,7 @@
     /* on a phone, a drag that pushes past the top or bottom edge of the galaxy scrolls the page instead */
     if (down.pt === 'touch' && CFG.single) {
       var over = Math.round((wantY - cam.y) * cam.z * UNIT);
-      if (over !== down.sy) { var se = document.scrollingElement || document.documentElement; se.scrollTop += (over - down.sy); down.sy = over; }
+      if (over !== down.sy) { window.scrollBy(0, over - down.sy); down.sy = over; }
     }
   }, { passive: true });
   HOST.addEventListener('pointerup', function (e) {
