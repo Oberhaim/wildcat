@@ -32,6 +32,18 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 }
 @media(prefers-reduced-motion:reduce){.grain{animation:none}}
 
+/* ---- wordmark, pinned to the top edge ---- */
+.brand{
+  position:fixed; top:0; left:0; right:0; z-index:6;
+  display:flex; justify-content:center; padding:28px 20px 0;
+  pointer-events:none;              /* the cloud and the buttons own every click */
+}
+.brand img{
+  display:block; width:clamp(150px,21vw,250px); height:auto;
+  opacity:.92;
+}
+@media(max-width:560px){ .brand{padding-top:20px} .brand img{width:min(58vw,190px)} }
+
 /* ---- flat UI, sits in front of the point cloud ---- */
 .ui{
   position:fixed; inset:auto 0 0 0; z-index:5;
@@ -80,21 +92,26 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
   display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
   color:rgba(255,255,255,.5);
 }
-.modal__video video{width:100%;height:100%;object-fit:cover;display:block}
+.modal__video video{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+/* fullscreen fills a landscape screen with a portrait clip, so show it whole */
+.modal__video video:fullscreen{object-fit:contain;cursor:zoom-out;background:#000}
+.modal__video video:-webkit-full-screen{object-fit:contain;background:#000}
+.modal__video video::backdrop{background:#000}
 
 /* Vertical footage goes beside the copy instead of above it — at full panel
    width a 344x640 clip would run past 1300px tall and bury everything. */
 .modal__main{display:block}
-.modal__box.is-portrait{width:min(680px,100%)}
-.modal__box.is-portrait .modal__main{display:flex;gap:26px;align-items:flex-start}
+.modal__box.is-portrait{width:min(600px,100%)}
+/* the copy is shorter than the clip is tall, so centre it against the film
+   instead of leaving the whole gap pooled underneath */
+.modal__box.is-portrait .modal__main{display:flex;gap:24px;align-items:center}
 .modal__box.is-portrait .modal__video{
-  width:auto; height:min(54vh,430px); flex:0 0 auto;
+  width:auto; height:min(50vh,400px); flex:0 0 auto;
 }
 .modal__box.is-portrait .modal__text{flex:1 1 auto;min-width:0}
-.modal__box.is-portrait .modal__title{margin-top:0}
+.modal__box.is-portrait .modal__title{margin-top:0;font-size:clamp(18px,2.1vw,24px)}
 .modal__box.is-portrait .modal__row{flex-direction:column;gap:20px;align-items:stretch}
 .modal__box.is-portrait .modal__body{max-width:none}
-.modal__box.is-portrait .stat{margin-left:auto}
 @media(max-width:620px){
   .modal__box.is-portrait .modal__main{flex-direction:column;gap:0}
   .modal__box.is-portrait .modal__video{width:100%;height:auto}
@@ -109,11 +126,16 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 .modal__body{margin:0;font-size:13.5px;line-height:1.7;color:rgba(255,255,255,.66);max-width:46ch}
 .modal__row{display:flex;gap:28px;align-items:flex-start}
 .modal__row .modal__body{flex:0 1 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .stat{
-  flex:0 0 auto; margin-left:auto;          /* pins to the panel's right edge */
   border:1px solid rgba(255,255,255,.28); border-radius:2px;
-  padding:12px 16px; text-align:center; min-width:104px;
+  padding:12px 14px; text-align:center; min-width:0;
 }
+/* a project with a long track record gets smaller type so six tiles still fit */
+.stats--dense{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.stats--dense .stat{padding:9px 6px}
+.stats--dense b{font-size:15px}
+.stats--dense span{font-size:8px;letter-spacing:.14em}
 .stat b{display:block;font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff;line-height:1}
 .stat span{
   display:block;margin-top:6px;font-family:var(--mono);font-size:8.5px;letter-spacing:.20em;
@@ -121,12 +143,52 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 }
 @media(max-width:560px){
   .modal__row{flex-direction:column;gap:18px}
-  .stat{align-self:stretch}
 }
+/* contact page — the studio pitch, so it gets more room than a work panel */
+.modal__box.is-wide{width:min(900px,100%)}
+.contact__belief{margin:0;max-width:34ch;flex:1 1 240px}
+#panel-contact .modal__title{margin-top:0;font-size:clamp(20px,2.6vw,30px);max-width:22ch}
+.contact__lede{margin:14px 0 0;max-width:60ch}
+
+/* the four headline numbers */
+.tiles{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  margin:26px 0 30px;
 }
-/* contact page */
-.contact__belief{margin:12px 0 24px;max-width:40ch}
-#panel-contact .modal__title{margin-top:0}
+.tiles .stat{padding:14px 10px}
+.tiles .stat b{overflow-wrap:anywhere}
+.stat--word b{font-size:12.5px;letter-spacing:.06em;line-height:1.2}
+
+/* what we actually do */
+.cols{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:26px;
+  padding-top:26px; border-top:1px solid rgba(255,255,255,.16);
+}
+.cols h3{
+  margin:0; font-family:var(--mono); font-size:10.5px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:#fff; line-height:1.5;
+}
+.cols h3::after{
+  content:''; display:block; width:26px; height:1px;
+  background:rgba(255,255,255,.55); margin:12px 0 14px;
+}
+.cols ul{margin:0;padding:0;list-style:none}
+.cols li{
+  position:relative; padding-left:14px; margin-bottom:11px;
+  font-size:12px; line-height:1.65; color:rgba(255,255,255,.62);
+}
+.cols li::before{
+  content:''; position:absolute; left:0; top:.58em;
+  width:4px; height:4px; background:rgba(255,255,255,.62);
+}
+.contact__cta{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 18px;
+  margin-top:30px; padding-top:24px; border-top:1px solid rgba(255,255,255,.16);
+}
+@media(max-width:720px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .cols{grid-template-columns:1fr;gap:24px}
+}
 .contact__mail{
   display:inline-block; color:#fff; text-decoration:none; overflow-wrap:anywhere;
   font-size:clamp(18px,2.9vw,28px); font-weight:600; letter-spacing:-.015em;
@@ -134,7 +196,6 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
   transition:border-color .2s;
 }
 .contact__mail:hover{border-bottom-color:#fff}
-}
 @media(max-width:560px){
   .ui{gap:8px;padding-bottom:24px}
   .ui button{padding:9px 13px;font-size:10px;letter-spacing:.16em}
@@ -147,9 +208,13 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 <div class="vignette" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
+<header class="brand">
+  <img src="Logo.png" alt="Wildcat" width="692" height="150" decoding="async">
+</header>
+
 <nav class="ui" aria-label="Sections">
   <div class="ui__row" id="ui-row"></div>
-  <div class="ui__row ui__row--contact"><button type="button" id="btn-contact">Contact</button></div>
+  <div class="ui__row ui__row--contact"><button type="button" id="btn-contact">About</button></div>
 </nav>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -169,16 +234,57 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
           <h2 class="modal__title" id="modal-title"></h2>
           <div class="modal__row">
             <p class="modal__body" id="modal-body"></p>
-            <div class="stat"><b id="modal-stat"></b><span>Players</span></div>
+            <div class="stats" id="modal-stats"></div>
           </div>
         </div>
       </div>
     </div>
 
     <div id="panel-contact" hidden>
-      <h2 class="modal__title">Contact</h2>
-      <p class="modal__body contact__belief">We believe a brand is better played than watched.</p>
-      <a class="contact__mail" href="mailto:collab@wildcatproduction.com">collab@wildcatproduction.com</a>
+      <h2 class="modal__title">We build games that grow your business.</h2>
+      <p class="modal__body contact__lede">
+        Wildcat is a gamification studio. We create fast, addictive and shareable game
+        experiences that help companies acquire, retain and activate their audience at scale.
+      </p>
+
+      <div class="tiles">
+        <div class="stat"><b>25</b><span>Games</span></div>
+        <div class="stat stat--word"><b>Unmatched</b><span>Acquisition</span></div>
+        <div class="stat"><b>3M</b><span>Players</span></div>
+        <div class="stat"><b>5M</b><span>Hours</span></div>
+      </div>
+
+      <div class="cols">
+        <div>
+          <h3>High-speed production</h3>
+          <ul>
+            <li>From concept to launch in under 1 month</li>
+            <li>Fully customizable</li>
+            <li>Seamless deployment</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Growth that converts</h3>
+          <ul>
+            <li>Turn attention into active users and engaged communities</li>
+            <li>Drive real conversions with performance-based incentives</li>
+            <li>A new acquisition layer beyond ads, KOLs and traditional marketing</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Scalable user acquisition</h3>
+          <ul>
+            <li>Instantly onboard thousands of users through gamified funnels</li>
+            <li>Designed to maximize retention, session time and repeat usage</li>
+            <li>Built-in virality loops: competition, rewards, social dynamics</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="contact__cta">
+        <p class="modal__body contact__belief">We believe a brand is better played than watched.</p>
+        <a class="contact__mail" href="mailto:yanis@wildcatproduction.com">yanis@wildcatproduction.com</a>
+      </div>
     </div>
   </div>
 </div>
@@ -327,6 +433,12 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
     const r=Math.hypot(x,y), w=Math.sin(r*7.0-1.1);
     b[o]=x*(1+0.12*w); b[o+1]=y*(1+0.12*w); b[o+2]=z+0.55*w;
   });
+  // horizontal bands slide apart by a fixed amount each — a scan tearing
+  const SLICE = derive((x,y,z,b,o)=>{
+    const band = Math.floor((y+1.4)*7);
+    const off  = (((band*2654435761)>>>0)%1000/1000 - .5) * 0.62;
+    b[o]=x+off; b[o+1]=y; b[o+2]=z+off*0.35;
+  });
   const LATTICE = derive((x,y,z,b,o,rnd)=>{
     const g=0.17;
     b[o]=Math.round(x/g)*g; b[o+1]=Math.round(y/g)*g;
@@ -336,7 +448,7 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
   const STATES = [MARK, EXPLODE, MARK, ORB, MARK, VORTEX];
   // hover targets, indexed to match the buttons.
   // null = that button deliberately does not morph the cloud.
-  const HOVER = [EXPLODE, ORB, LATTICE, RIPPLE, null];   // sports, healthcare, clubbing, lifestyle, contact
+  const HOVER = [EXPLODE, ORB, LATTICE, RIPPLE, VORTEX, SLICE, null];   // mma, formula 1, healthcare, clubbing, fashion, art, contact
   let hoverIdx = -1, hoverBlend = 0;
   // hMix is a PERSISTENT target that eases in its own right. Without it,
   // releasing a button dropped the target to null in a single frame and the
@@ -694,34 +806,53 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 (() => {
   const SECTIONS = [
     {
-      label:  'Sports',
-      poster: 'video/metafight.jpg',
-      video:  'video/metafight.mp4', vw: 344, vh: 640,
-      title:  'MMA \u2014 Formula 1',
-      stat:   '+1M',
-      copy:   'We build virtual games where the reward leaves the screen: play well and win real tickets to the live event, putting fans in the seats instead of in front of them.'
+      label:  'MMA',
+      poster: 'video/Metafi.jpg',
+      video:  'video/Metafi.mp4', vw: 344, vh: 640,
+      title:  'MetaFight',
+      stats:  [['+1M','Players']],
+      copy:   'Play, earn points, climb the leaderboard. The top 1,000 are rewarded with something real \u2014 tickets to the fight, merchandise, a meeting with the fighters. The reward leaves the screen and puts fans in the seats instead of in front of them.'
+    },
+    {
+      label:  'Formula 1',
+      poster: 'video/Spa.jpg',
+      video:  'video/Spa.mp4', vw: 716, vh: 1280,
+      title:  'Spa\u2011Francorchamps',
+      stats:  [['+250K','Players']],
+      copy:   'A lap of Spa\u2011Francorchamps rebuilt as a game \u2014 Eau Rouge, Raidillon, the climb up the Kemmel straight. Same loop: drive, earn points, climb the leaderboard, and the top 1,000 collect real rewards \u2014 grand prix tickets, team merchandise, time with the drivers.'
     },
     {
       label:  'Healthcare',
+      poster: 'video/Axa.jpg',
+      video:  'video/Axa.mp4', vw: 606, vh: 1080,
       title:  'AXA \u00d7 Publicis',
-      stat:   '+500K',
+      stats:  [['+500K','Players']],
       copy:   'Escape Bullying, made with AXA and Publicis, opens up how schools and families talk about bullying \u2014 building emotional support and understanding between parents, kids and friends rather than lecturing any of them.'
     },
     {
       label:  'Clubbing',
-      poster: 'video/chanoirs.jpg',
-      video:  'video/chanoirs.mp4', vw: 640, vh: 360,
+      poster: 'video/ARTicketing.jpg',
+      video:  'video/ARTicketing.mp4', vw: 592, vh: 1280,
       title:  'Chanoirs \u00d7 Fuse',
-      stat:   '+4,000',
-      copy:   'Chanoirs turns Europe\u2019s alternative club culture into a game, made with Fuse in Brussels. Play it to earn your way into the club in real life \u2014 the app is the door.'
+      stats:  [['2,000','Players'], ['30','Winners']],
+      copy:   'A Pok\u00e9mon GO\u2011like ticketing system for Europe\u2019s alternative club culture, made with Fuse in Brussels. Free tickets are hidden across the city, a radar points you to the nearest one, and you claim it in AR by walking to it \u2014 then use your name at the door.'
     },
     {
-      label:  'Lifestyle',
-      poster: 'video/waldos.jpg',
-      video:  'video/waldos.mp4', vw: 736, vh: 1280,
-      title:  'Waldos',
-      stat:   '+50K',
-      copy:   'For cannabis retailer Waldos, loyalty behaves like a game: a plant Tamagotchi you raise and keep alive, turning what you grow into points to spend in shop.'
+      label:  'Fashion',
+      poster: 'video/Versace.jpg',
+      video:  'video/Versace.mp4', vw: 592, vh: 1280,
+      title:  'Versace',
+      stats:  [['50K','Participants'], ['1,500','Rewards']],
+      copy:   'Outside the boutique, the Medusa spins on the pavement waiting to be picked up, and the season\u2019s look walks out to meet you in AR \u2014 turning the window you walk past into a reason to step inside.'
+    },
+    {
+      label:  'Art',
+      poster: 'video/DigitalAF.jpg',
+      video:  'video/DigitalAF.mp4', vw: 588, vh: 1270,
+      title:  'DigitalAF',
+      stats:  [['5,500+','Visitors'], ['20+','Sponsors'], ['50+','Artists'],
+                 ['50+','Speakers'], ['6+','Parties'], ['5','Days']],
+      copy:   'Wildcat produces DigitalAF, a traveling cultural event where art, technology, gaming and digital culture meet. From Brussels and Cannes to Seoul, Miami during Art Basel, and MIT in Boston, each edition brings together artists, builders, brands and communities through exhibitions, talks, performances and nightlife.'
     }
   ];
 
@@ -731,7 +862,7 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
   const title   = document.getElementById('modal-title');
   const body    = document.getElementById('modal-body');
   const eyebrow = document.getElementById('modal-eyebrow');
-  const stat    = document.getElementById('modal-stat');
+  const stats   = document.getElementById('modal-stats');
   const box     = document.querySelector('.modal__box');
   const slot    = document.getElementById('modal-slot');
   const vid     = document.getElementById('modal-video');
@@ -742,8 +873,8 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
   const pMail   = document.getElementById('panel-contact');
   let lastFocus = null;
 
-  // Hovering a button drives the point cloud. Index 5 is contact, which is
-  // why the hover targets in the canvas script run one past the sections.
+  // Hovering a button drives the point cloud. The last index is About,
+  // which is why the hover targets in the canvas script run one past the sections.
   const cloud = i => window.WILDCAT && window.WILDCAT.hover(i);
   function wire(btn, idx, onOpen){
     btn.addEventListener('pointerenter', () => cloud(idx));
@@ -753,9 +884,9 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
     btn.addEventListener('click', onOpen);
   }
 
-  // Categories are hidden for now — flip to true to bring the row back.
-  // Their data, panels, videos and hover morphs are all left intact.
-  const SHOW_SECTIONS = false;
+  // Flip to false to hide the category row; the data, panels, videos and
+  // hover morphs all stay wired either way.
+  const SHOW_SECTIONS = true;
 
   if(SHOW_SECTIONS){
     SECTIONS.forEach((sec, i) => {
@@ -780,14 +911,31 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
     lastFocus = btn;
     eyebrow.textContent = sec.label;      // category on top
     title.textContent   = sec.title;      // client names as the headline
-    stat.textContent    = sec.stat;
+    setStats(sec.stats);
     body.textContent    = sec.copy;
     setVideo(sec);
+    box.classList.remove('is-wide');
     show(pWork);
   }
 
+  // Each project carries its own track record, from one figure to six.
+  function setStats(list){
+    stats.textContent = '';
+    stats.hidden = !list || !list.length;
+    if(stats.hidden) return;
+    stats.classList.toggle('stats--dense', list.length > 2);
+    for(const [value, label] of list){
+      const cell = document.createElement('div');
+      cell.className = 'stat';
+      const b = document.createElement('b'); b.textContent = value;
+      const s = document.createElement('span'); s.textContent = label;
+      cell.append(b, s);
+      stats.appendChild(cell);
+    }
+  }
+
   // The slot takes the clip's real aspect, and vertical clips flip the panel
-  // into a side-by-side layout. Healthcare has no film yet, so it keeps the
+  // into a side-by-side layout. A section with no film falls back to the
   // 16:9 placeholder.
   function setVideo(sec){
     const portrait = !!sec.video && sec.vh > sec.vw;
@@ -807,7 +955,17 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
       vid.hidden = true;
     }
   }
+  // click the film to blow it up; Escape or the same click brings it back
+  vid.addEventListener('click', () => {
+    if(document.fullscreenElement === vid){ document.exitFullscreen(); return; }
+    if(vid.requestFullscreen)            vid.requestFullscreen().catch(()=>{});
+    else if(vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
+    else if(vid.webkitEnterFullscreen)   vid.webkitEnterFullscreen();   // iOS Safari
+  });
+
   function stopVideo(){
+    // never tear the source out from under a fullscreen player
+    if(document.fullscreenElement === vid && document.exitFullscreen) document.exitFullscreen();
     vid.pause();
     if(vid.getAttribute('src')){ vid.removeAttribute('src'); vid.removeAttribute('poster'); vid.load(); }
   }
@@ -815,6 +973,7 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
     lastFocus = btn;
     stopVideo();
     box.classList.remove('is-portrait');
+    box.classList.add('is-wide');         // the studio pitch needs the room
     eyebrow.textContent = 'Wildcat';
     show(pMail);
   }
