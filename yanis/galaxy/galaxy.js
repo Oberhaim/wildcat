@@ -8,7 +8,7 @@
    Parcours : enter -> universes -> galaxy (exploration libre) -> project (video plein cadre,
    nom, une phrase, KPI verifies, satellites lies) -> galaxy -> universes. Mode attract apres
    inactivite : vue globale, traversee des trois galaxies, projets emblematiques, retour a
-   ENTER THE WILDCAT UNIVERSE. Toute interaction tactile rend la main.
+   ENTER THE GALAXY. Toute interaction tactile rend la main.
 
    Donnees : /wildcat/galaxy/projects.json (une entree par projet, aucun chiffre non verifie).
    Medias : /wildcat/media/cases/<id>.mp4 et /wildcat/galaxy/posters/<id>.jpg, tous locaux. */
@@ -94,7 +94,7 @@
   HOST.innerHTML =
     '<canvas class="gx-canvas" id="gx-canvas" aria-hidden="true"></canvas>' +
     '<div class="gx-layer" id="gx-fx"></div>' +
-    '<div class="gx-enter" id="gx-enter"><div><h1 class="gx-enter-title" id="gx-enter-title">ENTER THE WILDCAT UNIVERSE.</h1><div class="gx-mono gx-enter-hint">TOUCH TO ENTER</div></div></div>' +
+    '<div class="gx-enter" id="gx-enter"><div><h1 class="gx-enter-title" id="gx-enter-title">ENTER THE GALAXY.</h1><div class="gx-mono gx-enter-hint">TOUCH TO ENTER</div></div></div>' +
     '<div class="gx-nuclei" id="gx-nuclei"></div>' +
     '<div class="gx-labels" id="gx-labels"></div>' +
     '<div class="gx-uni" id="gx-uni"><button type="button" id="gx-unibtn" data-g="universes"><i></i><span id="gx-unilabel">UNIVERSES</span></button></div>' +
@@ -105,7 +105,7 @@
       '<button type="button" class="gx-back" id="gx-back" data-g="back"><i></i><span>GALAXY</span></button>' +
     '</div>' +
     '<div class="gx-touchline" id="gx-touchline"><span class="gx-mono" id="gx-touchtext"></span></div>' +
-    '<div class="gx-attract gx-mono" id="gx-attract"><i></i>WILDCAT UNIVERSE</div>' +
+    '<div class="gx-attract gx-mono" id="gx-attract"><i></i>PORTFOLIO</div>' +
     '<div class="gx-op-zone" id="gx-op-zone"></div>';
   var canvas = $('#gx-canvas'), ctx = canvas.getContext('2d', { alpha: false });
   var W = 0, H = 0, DPR = 1, UNIT = 1, CX = 0, CY = 0;
@@ -891,6 +891,7 @@
     $('#gx-text').innerHTML = '<div class="gx-mono acc tag">' + esc(tags.join(' · ')) + (p.formats && p.formats.length ? ' · ' + esc(p.formats[0]) : '') + '</div>' +
       '<h2 class="gx-name">' + esc(p.name) + '</h2>' +
       '<div class="gx-short">' + esc(p.short) + '</div>' +
+      (p.link ? '<a class="gx-link" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + esc(p.linkLabel || 'Open') + ' \u2197</a>' : '') +
       (p.kpis && p.kpis.length ? '<div class="gx-kpis">' + p.kpis.slice(0, 2).map(function (k) { return '<div class="gx-kpi"><b>' + esc(k.value) + '</b><span class="gx-mono">' + esc(k.label) + '</span></div>'; }).join('') + '</div>' : '');
     var rel = (p.related || []).map(function (rid) { return BY[rid]; }).filter(Boolean).slice(0, 3);
     $('#gx-related').innerHTML = '<span class="gx-mono">RELATED</span>' + rel.map(function (q) { return '<button type="button" class="gx-sat ' + q.universe + '" data-g="sat" data-id="' + q.id + '" data-name="' + esc(q.name) + '"><img src="' + POSTERS + esc(q.poster) + '" alt=""></button>'; }).join('');
@@ -1127,7 +1128,7 @@
     }
     ripple(RX(e), RY(e), S.uni || 'n');
     feedback();
-    down = { x: RX(e), y: RY(e), t: now(), cx: cam.x, cy: cam.y, moved: false, btn: !!btn, consumed: false };
+    down = { x: RX(e), y: RY(e), px: e.clientX, py: e.clientY, sy: 0, pt: e.pointerType, t: now(), cx: cam.x, cy: cam.y, moved: false, btn: !!btn, consumed: false };
     if (S.converging) { down.consumed = true; return; }
     if (stopAttract()) { down.consumed = true; return; }
     if (pauseTour()) { down.consumed = true; return; }
@@ -1138,13 +1139,19 @@
     ptr.x = RX(e); ptr.y = RY(e); ptr.has = true;
     if (hint.st === 'running') endHint();
     if (!down || down.consumed || down.btn) return;
-    var dx = RX(e) - down.x, dy = RY(e) - down.y;
+    var dx = e.clientX - down.px, dy = e.clientY - down.py;
     if (!down.moved && Math.hypot(dx, dy) < 9) return;
     if (S.screen !== 'galaxy') return;
     down.moved = true; tween = null;
     var c = WORLD[S.uni], rx = CFG.single ? GE().rx * 0.9 : GR * 0.55, ry = CFG.single ? GE().ry * 0.9 : GR * 0.5;
     cam.x = clamp(down.cx - dx / (cam.z * UNIT), c.x - rx, c.x + rx);
-    cam.y = clamp(down.cy - dy / (cam.z * UNIT), c.y - ry, c.y + ry);
+    var wantY = down.cy - dy / (cam.z * UNIT);
+    cam.y = clamp(wantY, c.y - ry, c.y + ry);
+    /* on a phone, a drag that pushes past the top or bottom edge of the galaxy scrolls the page instead */
+    if (down.pt === 'touch' && CFG.single) {
+      var over = Math.round((wantY - cam.y) * cam.z * UNIT);
+      if (over !== down.sy) { window.scrollBy(0, over - down.sy); down.sy = over; }
+    }
   }, { passive: true });
   HOST.addEventListener('pointerup', function (e) {
     /* un doigt ne survole pas : il quitte la scene en se levant, la bulle revient a sa taille */
@@ -1153,7 +1160,7 @@
     S.lastTouch = now(); armIdle();
     var btn = e.target.closest('button[data-g]');
     if (btn) { var g = btn.getAttribute('data-g'); if (g === 'universes') goUniverses(true); else if (g === 'back') backToGalaxy(); else if (g === 'sat') openRelated(btn.getAttribute('data-id')); return; }
-    if (S.screen === 'project' && S.open) { if (now() - (S.lastOpenAt || 0) > 800) backToGalaxy(); return; }
+    if (S.screen === 'project' && S.open) { if (e.target.closest && e.target.closest('a')) return; if (now() - (S.lastOpenAt || 0) > 800) backToGalaxy(); return; }
     if (S.screen === 'universes') { var u = hitNucleus(RX(e), RY(e)); if (u) dive(u); return; }
     if (S.screen === 'galaxy') {
       var pt = hitPortal(RX(e), RY(e)); if (pt) { fly(pt.to); return; }

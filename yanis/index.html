@@ -117,6 +117,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .xpgain { position: absolute; top: 20px; z-index: 3; font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .08em; color: #fff; text-shadow: 0 0 10px var(--cyan), 0 0 22px var(--magenta); white-space: nowrap; pointer-events: none; animation: gainfloat 1.2s ease-out forwards; }
 @keyframes gainfloat { 0% { opacity: 1; transform: translate(-50%, 0) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, 34px) scale(.9); } }
 
+
+[hidden] { display: none !important; }
+.growth { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 10px; max-width: 52ch; }
+.growth li { padding: 10px 14px; border-left: 2px solid var(--magenta); background: linear-gradient(90deg, rgba(255,43,214,.12), transparent); }
+.growth b { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); text-shadow: 0 0 10px rgba(25,246,255,.6); display: block; }
+.growth span { font-size: 15px; line-height: 1.4; color: #c9dcee; display: block; margin-top: 2px; }
+.hero .pill { text-align: left; }
+@media (max-width: 600px) {
+  .pill > span, .who .cls > span { display: block; }
+  .pill .dot, .who .cls .dot { display: none; }
+}
+
 /* hero */
 .hero { position: relative; isolation: isolate; overflow: hidden; padding-block: 34px 84px; }
 .hero-bg { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(5,6,15,.35) 0%, rgba(5,6,15,.78) 70%, var(--void) 100%), url("city-cyber.jpg") center 30% / cover no-repeat; filter: saturate(1.25) contrast(1.05); }
@@ -339,12 +351,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
           <img src="yanis-hero-cyber.jpg" width="1100" height="1473" alt="Hyper-realistic cyberpunk render of Yanis Sabir standing with arms crossed, lit by cyan and magenta neon">
         </div>
         <div>
-          <span class="pill">Lead Product Designer · Gamification Lead</span>
+          <span class="pill"><span>Lead Product Designer</span><span class="dot"> · </span><span>Gamification Lead</span></span>
           <h1>I design experiences people come back to.</h1>
-          <p class="lead">Six years producing ambitious projects, games that have gathered more than a million players, and AI agents that prospect and prepare posts while the team focuses on ideas. One page, proof, and games to try.</p>
+          <p class="lead">I build AI systems and products that help companies grow: sales agents that found 2,000+ qualified contacts, games and campaigns that reached over a million players, and apps running in production.</p>
+          <ul class="growth">
+            <li><b>AI systems</b><span>Sales and social agents that prospect, follow up and prepare posts while the team focuses on ideas.</span></li>
+            <li><b>Products</b><span>Games and apps used by over 1M players, taken from idea to launch.</span></li>
+            <li><b>Growth</b><span>Gamified funnels and campaigns that turn attention into active users.</span></li>
+          </ul>
           <div class="cta">
-            <a class="btn" href="#wildcat-galaxy">Portfolio</a>
-            <a class="btn ghost" href="#quiz">Take the hiring test</a>
+            <a class="btn" href="#portfolio">Portfolio</a>
+            <a class="btn ghost" href="#end">Get in touch</a>
           </div>
         </div>
       </div>
@@ -367,14 +384,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
           <div class="disc"><img src="yanis-avatar-cyber.jpg" width="800" height="800" alt="Cyberpunk portrait of Yanis Sabir"></div>
           <h3>Yanis Sabir</h3>
           <span class="age">37 years old · Remote</span>
-          <span class="cls">Lead Product Designer · Gamification Lead</span>
+          <span class="cls"><span>Lead Product Designer</span><span class="dot"> · </span><span>Gamification Lead</span></span>
           <span class="edu">Ex-Nanotech Engineer, Yale University</span>
           <span class="xpill">LVL 37 · 6 years of XP</span>
         </div>
         <div class="stats">
           <div class="rows">
+            <div class="srow"><b>Building AI systems</b><div class="m"><i style="--v:90%"></i></div><span>90</span></div>
             <div class="srow"><b>Project leadership</b><div class="m"><i style="--v:97%"></i></div><span>97</span></div>
-            <div class="srow"><b>Building with AI</b><div class="m"><i style="--v:90%"></i></div><span>90</span></div>
             <div class="srow"><b>Gamification</b><div class="m"><i style="--v:93%"></i></div><span>93</span></div>
             <div class="srow"><b>Product and game design</b><div class="m"><i style="--v:88%"></i></div><span>88</span></div>
           </div>
@@ -433,18 +450,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     </div>
   </section>
 
-  <section class="gxsec" id="wildcat-galaxy">
+  <section class="gxsec" id="portfolio">
     <div class="gxwrap" id="gxwrap">
       <div class="gx" id="gxhost"></div>
       <div class="gxtitle">
-        <p class="eyebrow">The Wildcat galaxy</p>
+        <p class="eyebrow">Selected work</p>
         <h2>Every project.<br>One galaxy.</h2>
       </div>
       <p class="gxhint" aria-hidden="true">Tap anywhere to go back to the galaxy</p>
     </div>
   </section>
 
-  <section class="block" id="services">
+  <section class="block" id="services" hidden>
     <div class="wrap">
       <p class="eyebrow">What I bring</p>
       <h2 class="sec-title">Your expertise.<br>My proof.</h2>
@@ -467,7 +484,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     </div>
   </section>
 
-  <section class="block blue" id="demo">
+  <section class="block blue" id="demo" hidden>
     <div class="wrap">
       <p class="eyebrow">Live demo</p>
       <h2 class="sec-title">Don't believe me.<br>Test it.</h2>
@@ -495,7 +512,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     </div>
   </section>
 
-  <section class="block" id="arch">
+  <section class="block" id="arch" hidden>
     <div class="wrap">
       <p class="eyebrow">Under the hood</p>
       <h2 class="sec-title">My method.</h2>
@@ -546,7 +563,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     </div>
   </section>
 
-  <section class="block mintbg" id="quiz">
+  <section class="block mintbg" id="quiz" hidden>
     <div class="wrap">
       <p class="eyebrow">The hiring test</p>
       <h2 class="sec-title">The (very objective) hiring test.</h2>
@@ -561,7 +578,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   <section class="end" id="end">
     <div class="wrap">
       <h2>Thank you.</h2>
-      <p class="t">You build brands people talk about. I build the tools and games that give teams time to imagine them. I imagine, I produce, I ship. Shall we grab a coffee?</p>
+      <p class="t">You build brands people talk about. I build the AI systems and products that help companies grow. I imagine, I produce, I ship. Shall we grab a coffee?</p>
       <div class="cta">
         <button class="btn cream" id="copy" type="button">yanis@wildcatproduction.com</button>
         <a class="btn ghost" href="https://www.linkedin.com/in/yanissabir/">LinkedIn ↗</a>
@@ -657,7 +674,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
   /* live Dream Machine embed, only when the page is the top-level document */
   try {
-    if (window.top === window.self) {
+    if (window.top === window.self && !document.getElementById('demo').hidden) {
       var scr = document.getElementById('screen'), fr = document.createElement('iframe');
       fr.className = 'live'; fr.src = 'https://dreammachine.wildcatproduction.com/'; fr.title = 'Dream Machine by AI4LAM';
       fr.setAttribute('allow', 'camera; fullscreen; clipboard-write'); fr.loading = 'lazy';
