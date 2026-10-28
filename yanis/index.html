@@ -302,6 +302,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .gxwrap[data-open="1"] .gxtitle { opacity: 0; }
 .gxwrap { --bg:#050507; --ink:#F3F3EF; --ink-2:#C9C9C4; --muted:#8B8B93; --dim:#55555D; --hair:rgba(255,255,255,.12); --hair-2:rgba(255,255,255,.26); --red:#FF2D1F; --red-2:#FF6A5C; --play:#7CE0FF; --protect:#5B8CFF; --activate:#FF57C8; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; position: relative; width: 100%; height: clamp(560px, 92vh, 940px); background: #050507; color: #F3F3EF; font-family: var(--sans); font-size: 16px; line-height: normal; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
 
+
+@media (pointer: coarse) {
+  .gxwrap { height: clamp(420px, 62vh, 680px); }
+}
 /* on touch screens, the top and bottom strips of the galaxy always scroll the page, so nobody gets stuck */
 .gxpass { display: none; }
 @media (pointer: coarse) {
@@ -664,7 +668,25 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     try { navigator.clipboard.writeText(t).then(function () { note.textContent = 'Email copied.'; }, sel); } catch (e) { sel(); }
   });
 
-    /* Wildcat galaxy, mounted inside the page when it scrolls into view */
+  
+  /* touch screens: keep the two scroll strips on the visible edges of the galaxy, wherever the page is scrolled */
+  (function () {
+    var gw = document.getElementById('gxwrap'), top = gw && gw.querySelector('.gxpass-top'), bot = gw && gw.querySelector('.gxpass-bottom'), barEl = document.querySelector('.bar');
+    if (!gw || !top || !bot || !window.matchMedia || !window.matchMedia('(pointer: coarse)').matches) return;
+    var raf = 0;
+    function place() {
+      raf = 0;
+      var r = gw.getBoundingClientRect(), barB = barEl ? barEl.getBoundingClientRect().bottom : 0;
+      var t = Math.max(0, barB - r.top), b = Math.max(0, r.bottom - window.innerHeight);
+      var cap = Math.max(0, r.height - 130);
+      top.style.transform = 'translateY(' + Math.min(t, cap) + 'px)';
+      bot.style.transform = 'translateY(' + (-Math.min(b, cap)) + 'px)';
+    }
+    function q() { if (!raf) raf = requestAnimationFrame(place); }
+    window.addEventListener('scroll', q, { passive: true }); window.addEventListener('resize', q); place();
+  })();
+
+  /* Wildcat galaxy, mounted inside the page when it scrolls into view */
   (function () {
     var gh = document.getElementById('gxhost'), mounted = false;
     if (!gh) return;
