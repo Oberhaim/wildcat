@@ -304,15 +304,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 
 @media (pointer: coarse) {
-  .gxwrap { height: clamp(420px, 62vh, 680px); }
+  .gxwrap { height: clamp(480px, 76vh, 760px); }
 }
 /* on touch screens, the top and bottom strips of the galaxy always scroll the page, so nobody gets stuck */
 .gxpass { display: none; }
 @media (pointer: coarse) {
-  .gxpass { display: flex; position: absolute; left: 0; right: 0; height: 56px; z-index: 6; touch-action: pan-y; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(228,247,255,.55); }
-  .gxpass-top { top: 0; background: linear-gradient(180deg, rgba(25,246,255,.16), transparent); border-top: 1px solid rgba(25,246,255,.45); }
-  .gxpass-bottom { bottom: 0; background: linear-gradient(0deg, rgba(25,246,255,.16), transparent); border-bottom: 1px solid rgba(25,246,255,.45); }
-  .gxwrap[data-open="1"] .gxpass span { opacity: 0; }
+  .gxpass { display: block; position: absolute; left: 0; right: 0; height: 56px; z-index: 6; touch-action: pan-y; background: transparent; }
+  .gxpass span { display: none; }
+  .gxpass-top { top: 0; }
+  .gxpass-bottom { bottom: 0; }
 }
 .gxhint { position: absolute; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 5; margin: 0; padding: 7px 14px; border: 1px solid rgba(25,246,255,.6); background: rgba(0,0,0,.6); color: #F3F3EF; font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .4s ease; white-space: nowrap; }
 .gxwrap[data-open="1"] .gxhint { opacity: .9; }
