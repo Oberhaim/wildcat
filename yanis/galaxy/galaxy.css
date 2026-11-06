@@ -1,0 +1,164 @@
+/* THE WILDCAT GALAXY · feuille de la scene. Une scene fixe plein ecran, zero defilement,
+   zero chrome de site. Le Canvas porte l'espace, les galaxies et les objets ; le HTML ne
+   porte que la typographie et la video du projet ouvert. Tailles en vh/vw (1920x1080 de
+   reference). transform et opacity seulement pour bouger, jamais de blur anime. */
+
+:root{ --t-touch:70ms; --t-micro:400ms; --t-absorb:850ms; --t-dive:2000ms; --t-open:1200ms; --t-text:750ms; --t-exit:420ms; }
+
+.gx{position:relative; width:100%; height:100%; touch-action:none; overflow:hidden; background:#050507; color:var(--ink); --acc:var(--ink);}
+/* dans la Machine : la galaxie est une couche de la stage, sans entree, sans bouton, sans operateur */
+.gx.embedded{position:absolute; opacity:1; transition:opacity .45s ease;}
+.gx.embedded .gx-enter,.gx.embedded .gx-uni,.gx.embedded .gx-op-zone,.gx.embedded .gx-attract{display:none!important;}
+.gx.is-out{opacity:0; pointer-events:none;}
+.gx-canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+.gx-layer{position:absolute; inset:0; pointer-events:none;}
+.gx-mono{font-family:var(--mono); font-size:clamp(11px,1.5vh,17px); letter-spacing:.3em; text-transform:uppercase; font-weight:800; color:var(--muted);}
+.gx-mono.acc{color:var(--acc);}
+
+/* ---------- 01 · entree ---------- */
+.gx-enter{position:absolute; inset:0; display:grid; place-items:center; text-align:center; opacity:0; transition:opacity var(--t-text) ease; pointer-events:none;}
+.gx-enter.on{opacity:1;}
+.gx-enter-title{font-size:clamp(40px,9.4vh,112px); font-weight:900; letter-spacing:-.05em; line-height:.92; margin:0; max-width:86vw; text-wrap:balance; text-shadow:0 0 60px rgba(255,45,31,.25);}
+.gx-enter-hint{margin-top:3.4vh; opacity:.8;}
+
+/* ---------- 02 · les trois univers ---------- */
+.gx-nuclei{position:absolute; inset:0; opacity:0; transition:opacity var(--t-text) ease; pointer-events:none;}
+.gx-nuclei.on{opacity:1;}
+.gx-nu{position:absolute; transform:translate(-50%,-50%); text-align:center; pointer-events:none;}
+.gx-nu-word{font-size:clamp(34px,7.6vh,92px); font-weight:900; letter-spacing:-.04em; line-height:1; color:var(--ink); transition:opacity var(--t-absorb) ease, transform var(--t-absorb) cubic-bezier(.2,.8,.2,1); text-shadow:0 2px 30px rgba(0,0,0,.7);}
+.gx-nu-line{margin-top:1.4vh; font-size:clamp(12px,1.9vh,22px); color:var(--ink-2); font-weight:600; letter-spacing:-.01em; opacity:.85; transition:opacity var(--t-absorb) ease;}
+.gx-nu.is-off .gx-nu-word{opacity:0; transform:scale(.6);} .gx-nu.is-off .gx-nu-line{opacity:0;}
+.gx-nu.is-on .gx-nu-word{opacity:0; transform:scale(1.4);} .gx-nu.is-on .gx-nu-line{opacity:0;}
+
+/* ---------- 03 · dans une galaxie : noms sous les objets, retour aux univers ---------- */
+.gx-labels{position:absolute; inset:0; pointer-events:none;}
+.gx[data-screen="enter"] .gx-labels,.gx[data-screen="boot"] .gx-labels{display:none;}
+.gx-label{position:absolute; transform:translate(-50%,0); text-align:center; white-space:nowrap; will-change:transform, opacity; transition:opacity .5s ease;}
+.gx-label b{display:block; font-weight:900; letter-spacing:-.03em; line-height:1; color:var(--ink); text-shadow:0 2px 24px rgba(0,0,0,.8);}
+.gx-label span{display:block; margin-top:.5vh; font-family:var(--mono); font-size:clamp(9px,1.15vh,13px); letter-spacing:.26em; text-transform:uppercase; font-weight:800; color:var(--muted);}
+.gx-label.p1 b{font-size:clamp(20px,3.6vh,44px);} .gx-label.p2 b{font-size:clamp(16px,2.7vh,32px);} .gx-label.p3 b{font-size:clamp(13px,2.1vh,25px);}
+.gx-label.echo b{color:var(--ink-2); font-size:clamp(12px,1.9vh,22px);}
+.gx-label.dim{opacity:.18;}
+.gx-uni{position:absolute; left:50%; bottom:3.2vh; transform:translateX(-50%); display:flex; align-items:center; gap:1.2vw; opacity:0; transition:opacity var(--t-text) ease; pointer-events:none;}
+.gx-uni.on{opacity:1; pointer-events:auto;}
+.gx-uni button{background:transparent; border:0; color:var(--muted); font-family:var(--mono); font-size:clamp(11px,1.5vh,17px); letter-spacing:.3em; text-transform:uppercase; font-weight:800; padding:1.6vh 2vw; cursor:pointer; display:flex; align-items:center; gap:1vw;}
+.gx-uni button i{width:1.6vh; height:1.6vh; border:1px solid var(--hair-2); border-radius:50%; display:inline-block; position:relative;}
+.gx-uni button i::after{content:""; position:absolute; inset:.4vh; border-radius:50%; background:var(--acc);}
+.gx-uni button.is-down{color:var(--ink);}
+.gx-portal-label{position:absolute; transform:translate(-50%,-50%); font-family:var(--mono); font-size:clamp(10px,1.35vh,16px); letter-spacing:.3em; text-transform:uppercase; font-weight:800; white-space:nowrap; pointer-events:none; transition:opacity .5s ease;}
+
+/* ---------- 04 · projet ouvert : la video est la scene ---------- */
+.gx-project{position:absolute; inset:0; pointer-events:none;}
+.gx-stage{position:absolute; left:0; top:0; width:100%; height:100%; overflow:hidden; background:#000; transform-origin:50% 50%; will-change:transform, opacity; opacity:0;
+  transition:opacity var(--t-open) ease, transform var(--t-open) cubic-bezier(.2,.8,.2,1);}
+.gx-stage.on{opacity:1;}
+/* portrait : la galaxie reste visible, assombrie, dans les espaces lateraux */
+.gx-stage.p-center,.gx-stage.p-asym{background:rgba(5,5,7,.6);}
+.gx-stage video,.gx-stage img.gx-main{position:absolute; display:block;}
+/* paysage : plein cadre, crop controle par object-position (le sujet reste) */
+.gx-stage.land video,.gx-stage.land img.gx-main{inset:0; width:100%; height:100%; object-fit:cover; object-position:center;}
+/* portrait : la video entiere, l'ecran etendu par l'affiche du projet en miroir (jamais un flou generique) */
+.gx-stage.p-center video,.gx-stage.p-center img.gx-main{top:0; height:100%; width:auto; left:50%; transform:translateX(-50%); object-fit:contain;}
+.gx-stage.p-asym video,.gx-stage.p-asym img.gx-main{top:0; height:100%; width:auto; left:62%; transform:translateX(-50%); object-fit:contain;}
+.gx-stage .gx-bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.36; filter:brightness(.45) saturate(.8); transform:scaleX(-1);}
+.gx-stage .gx-bg[hidden]{display:none;}
+.gx-stage.land .gx-bg{display:none;}
+.gx-stage .gx-veil{position:absolute; inset:0; pointer-events:none; transition:opacity var(--t-text) ease;}
+.gx-stage.land .gx-veil{background:linear-gradient(0deg, rgba(5,5,7,.86) 0%, rgba(5,5,7,.45) 26%, rgba(5,5,7,0) 52%);}
+.gx-stage.p-center .gx-veil{background:linear-gradient(90deg, rgba(5,5,7,.88) 0%, rgba(5,5,7,.55) 24%, rgba(5,5,7,0) 40%, rgba(5,5,7,0) 60%, rgba(5,5,7,.55) 76%, rgba(5,5,7,.88) 100%);}
+.gx-stage.p-asym .gx-veil{background:linear-gradient(90deg, rgba(5,5,7,.94) 0%, rgba(5,5,7,.8) 28%, rgba(5,5,7,.2) 46%, rgba(5,5,7,0) 60%);}
+.gx-stage.short .gx-veil::after{content:""; position:absolute; inset:0; background:rgba(5,5,7,.12);}
+.gx-stage.lowres video{image-rendering:auto;}
+.gx-stage.failed video{display:none;}
+
+.gx-text{position:absolute; left:5vw; bottom:6vh; max-width:52vw; display:flex; flex-direction:column; gap:1.3vh; opacity:0; transform:translateY(1.6vh); transition:opacity var(--t-text) ease, transform var(--t-text) cubic-bezier(.2,.8,.2,1);}
+.gx-text.on{opacity:1; transform:none;}
+.gx-project.p-center .gx-text{left:5vw; bottom:auto; top:50%; transform:translateY(-50%); max-width:26vw;}
+.gx-project.p-center .gx-text.on{transform:translateY(-50%);}
+.gx-project.p-asym .gx-text{left:6vw; bottom:auto; top:50%; transform:translateY(-50%); max-width:34vw;}
+.gx-project.p-asym .gx-text.on{transform:translateY(-50%);}
+.gx-name{font-size:clamp(40px,8.6vh,104px); font-weight:900; letter-spacing:-.05em; line-height:.9; margin:0; text-wrap:balance; text-shadow:0 2px 40px rgba(0,0,0,.7);}
+.gx-project.p-center .gx-name{font-size:clamp(30px,6.2vh,76px);}
+.gx-short{font-size:clamp(17px,2.6vh,32px); font-weight:700; color:var(--ink); letter-spacing:-.015em; line-height:1.22; text-wrap:pretty; text-shadow:0 2px 30px rgba(0,0,0,.7); max-width:40ch;}
+.gx-kpis{display:flex; gap:2.4vw; margin-top:.6vh;}
+.gx-kpi b{display:block; font-size:clamp(28px,5.4vh,66px); font-weight:900; letter-spacing:-.04em; line-height:1; color:var(--acc);}
+.gx-kpi span{display:block; margin-top:.4vh;}
+.gx-related{position:absolute; right:4vw; bottom:5vh; display:flex; gap:1.4vw; align-items:flex-end; opacity:0; transition:opacity var(--t-text) ease .3s; pointer-events:none;}
+.gx-related.on{opacity:1; pointer-events:auto;}
+.gx-related .gx-mono{position:absolute; right:0; top:-3.2vh;}
+.gx-sat{position:relative; width:11vh; height:11vh; border-radius:50%; overflow:hidden; border:1px solid var(--hair-2); background:#000; cursor:pointer; padding:0; transition:transform var(--t-micro) ease, border-color var(--t-micro) ease; -webkit-tap-highlight-color:transparent;}
+.gx-sat img{width:100%; height:100%; object-fit:cover; display:block; opacity:.9;}
+.gx-sat::after{content:attr(data-name); position:absolute; left:0; right:0; bottom:0; padding:.6vh .4vw .9vh; font-family:var(--mono); font-size:clamp(8px,1.05vh,12px); letter-spacing:.14em; text-transform:uppercase; font-weight:800; color:var(--ink); background:linear-gradient(0deg, rgba(5,5,7,.92), rgba(5,5,7,0)); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.gx-sat.is-down{transform:scale(.94);}
+.gx-sat.play{border-color:var(--play);} .gx-sat.protect{border-color:var(--protect);} .gx-sat.activate{border-color:var(--activate);}
+.gx-back{position:absolute; left:4vw; top:4vh; display:flex; align-items:center; gap:1vw; background:transparent; border:0; color:var(--muted); font-family:var(--mono); font-size:clamp(11px,1.5vh,17px); letter-spacing:.3em; text-transform:uppercase; font-weight:800; padding:1.4vh 1vw; cursor:pointer; opacity:0; transition:opacity var(--t-text) ease .4s; pointer-events:none;}
+.gx-back.on{opacity:1; pointer-events:auto;}
+.gx-back i{width:2.2vh; height:2.2vh; border-radius:50%; border:1px solid var(--hair-2); position:relative;}
+.gx-back i::after{content:""; position:absolute; inset:.55vh; border-radius:50%; background:var(--acc);}
+.gx-back.is-down{color:var(--ink);}
+.gx-project .gx-mono.tag{opacity:.9;}
+
+/* ---------- affordance tactile : une ligne, rien de plus ----------
+   Le JS la pose dans une bande libre de la scene (transform) : elle ne couvre jamais une bulle
+   ni son nom. Elle s'efface au premier toucher. Aucun cadre, aucun bouton, aucune fleche. */
+.gx-touchline{position:absolute; left:50%; top:0; opacity:0; pointer-events:none; will-change:transform, opacity;
+  transition:opacity .6s ease, transform .55s cubic-bezier(.2,.8,.2,1);}
+.gx-touchline.on{opacity:1;}
+.gx-touchline span{display:block; color:var(--ink); white-space:nowrap; opacity:.72;
+  text-shadow:0 2px 26px rgba(0,0,0,.92), 0 0 40px rgba(0,0,0,.7); animation:gxBreathe 3.8s ease-in-out infinite;}
+@keyframes gxBreathe{0%,100%{opacity:.52;} 50%{opacity:1;}}
+.gx[data-screen="enter"] .gx-touchline,.gx[data-screen="boot"] .gx-touchline{display:none;}
+
+/* ---------- attract ---------- */
+.gx-attract{position:absolute; right:3vw; bottom:3.2vh; opacity:0; transition:opacity 1s ease; color:var(--dim);}
+.gx-attract.on{opacity:1;}
+.gx-attract i{display:inline-block; width:.9vh; height:.9vh; background:var(--red); margin-right:.8vw; animation:gxDot 1.4s steps(2) infinite;}
+@keyframes gxDot{50%{opacity:0;}}
+
+/* ---------- retour tactile ---------- */
+.gx-touch{position:absolute; width:2px; height:2px; border-radius:50%; pointer-events:none; border:1.5px solid var(--acc); transform:translate(-50%,-50%); animation:gxRipple .76s ease-out forwards;}
+@keyframes gxRipple{from{width:2vh; height:2vh; opacity:.8;} to{width:22vh; height:22vh; opacity:0;}}
+
+/* ---------- operateur (cache) ---------- */
+.gx-op-zone{position:absolute; left:0; bottom:0; width:12vw; height:12vh; pointer-events:auto;}
+.gx-sheet{position:absolute; left:2vw; bottom:2vh; background:rgba(8,8,11,.96); border:1px solid var(--hair-2); padding:2vh 1.6vw; display:flex; gap:1vw; pointer-events:auto;}
+.gx-sheet button{background:transparent; border:1px solid var(--hair-2); color:var(--ink); font-family:var(--mono); font-size:clamp(11px,1.4vh,16px); letter-spacing:.2em; text-transform:uppercase; font-weight:800; padding:1.4vh 1.4vw; cursor:pointer;}
+
+/* ---------- galaxie unique (/wildcat/galaxy/one) : pas de choix d'univers ---------- */
+.gx.single .gx-nuclei,.gx.single .gx-uni,.gx.single .gx-portal-label{display:none!important;}
+.gx.single{cursor:grab;} .gx.single:active{cursor:grabbing;}
+
+/* ---------- telephone en portrait (classe .port posee par le JS) ----------
+   Les univers s'empilent, le projet ouvert met la video en haut et le texte dessous. */
+.gx.port .gx-enter-title{font-size:clamp(34px,12.5vw,72px); max-width:90vw;}
+.gx.port .gx-nu-word{font-size:clamp(30px,11vw,64px);}
+.gx.port .gx-nu-line{font-size:clamp(12px,3.6vw,17px); max-width:80vw; margin-left:auto; margin-right:auto;}
+.gx.port .gx-label.p1 b{font-size:clamp(15px,4.6vw,24px);} .gx.port .gx-label.p2 b{font-size:clamp(13px,3.9vw,20px);} .gx.port .gx-label.p3 b{font-size:clamp(12px,3.4vw,17px);}
+.gx.port .gx-label.echo b{font-size:clamp(11px,3vw,15px);}
+.gx.port .gx-label span{font-size:clamp(8px,2.3vw,11px); letter-spacing:.18em;}
+.gx.port .gx-mono{font-size:clamp(10px,2.8vw,13px); letter-spacing:.22em;}
+.gx.port .gx-uni{bottom:max(2.4vh, env(safe-area-inset-bottom)); gap:2vw; width:max-content; max-width:96vw;}
+.gx.port .gx-uni button{padding:1.4vh 2.4vw;}
+.gx.port .gx-back{left:5vw; top:max(2.4vh, env(safe-area-inset-top)); z-index:3;}
+/* projet ouvert : la video occupe le haut de l'ecran */
+.gx.port .gx-stage.land video,.gx.port .gx-stage.land img.gx-main{top:0; bottom:auto; left:0; width:100%; height:46%; object-fit:cover;}
+.gx.port .gx-stage.p-center video,.gx.port .gx-stage.p-center img.gx-main,.gx.port .gx-stage.p-asym video,.gx.port .gx-stage.p-asym img.gx-main{top:0; left:50%; width:auto; height:56%; max-width:100%; transform:translateX(-50%); object-fit:contain;}
+.gx.port .gx-stage .gx-veil,.gx.port .gx-stage.land .gx-veil,.gx.port .gx-stage.p-center .gx-veil,.gx.port .gx-stage.p-asym .gx-veil{background:linear-gradient(180deg, rgba(5,5,7,.55) 0%, rgba(5,5,7,0) 14%, rgba(5,5,7,0) 34%, rgba(5,5,7,.92) 52%, rgba(5,5,7,1) 100%);}
+.gx.port .gx-text,.gx.port .gx-project.p-center .gx-text,.gx.port .gx-project.p-asym .gx-text{left:6vw; right:6vw; top:auto; bottom:calc(17vh + 4vw); max-width:none; transform:translateY(1.6vh); gap:1vh;}
+.gx.port .gx-text.on,.gx.port .gx-project.p-center .gx-text.on,.gx.port .gx-project.p-asym .gx-text.on{transform:none;}
+.gx.port .gx-name,.gx.port .gx-project.p-center .gx-name{font-size:clamp(30px,10vw,52px); overflow-wrap:anywhere;}
+.gx.port .gx-short{font-size:clamp(15px,4.3vw,20px); max-width:none;}
+.gx.port .gx-kpis{gap:6vw;}
+.gx.port .gx-kpi b{font-size:clamp(26px,8vw,40px);}
+.gx.port .gx-related{left:6vw; right:6vw; bottom:max(3vh, env(safe-area-inset-bottom)); gap:3vw; justify-content:flex-start;}
+.gx.port .gx-related .gx-mono{left:0; right:auto; top:-2.6vh;}
+.gx.port .gx-sat{width:min(19vw,13vh); height:min(19vw,13vh);}
+.gx.port .gx-sat::after{font-size:clamp(7px,2vw,10px); padding:.5vh .2vw .7vh;}
+.gx.port .gx-attract{right:4vw; bottom:max(2vh, env(safe-area-inset-bottom));}
+.gx.port .gx-op-zone{width:22vw; height:10vh;}
+
+@media (prefers-reduced-motion: reduce){ .gx-touch{animation:none; display:none;} .gx-attract i{animation:none;} .gx-touchline span{animation:none; opacity:.82;} }
+
+/* link button in an open project */
+.gx-link{pointer-events:auto; align-self:flex-start; display:inline-block; margin-top:.4vh; padding:1.1vh 1.8vh; background:var(--acc); color:#000; font-family:var(--mono); font-weight:800; font-size:clamp(11px,1.5vh,16px); letter-spacing:.2em; text-transform:uppercase; text-decoration:none; border:1px solid var(--acc);}
+.gx-link:hover{background:transparent; color:var(--acc);}
