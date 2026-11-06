@@ -214,7 +214,7 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
 
 <nav class="ui" aria-label="Sections">
   <div class="ui__row" id="ui-row"></div>
-  <div class="ui__row ui__row--contact"><button type="button" id="btn-contact">About</button></div>
+  <div class="ui__row ui__row--contact"><button type="button" id="btn-more">More</button><button type="button" id="btn-contact">About</button></div>
 </nav>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -900,6 +900,11 @@ body{color:#fff;-webkit-tap-highlight-color:transparent}
     row.hidden = true;                    // no empty row left behind
   }
   wire(contact, SECTIONS.length, () => openContact(contact));
+
+  // "More" opens the galaxy of projects.
+  document.getElementById('btn-more').addEventListener('click', () => {
+    window.location.href = '/yanis/#portfolio';
+  });
 
   function show(el){
     pWork.hidden = el !== pWork;
